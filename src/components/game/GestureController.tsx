@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GestureRecognizer, FilesetResolver, GestureRecognizerResult } from '@mediapipe/tasks-vision';
-import { Camera, CameraOff, Loader2 } from 'lucide-react';
+import { Camera, CameraOff, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface GestureControllerProps {
@@ -14,9 +14,11 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
   const [detectedGesture, setDetectedGesture] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const recognizerRef = useRef<GestureRecognizer | null>(null);
   const rafId = useRef<number | null>(null);
   const lastVideoTime = useRef<number>(-1);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Load Model
   useEffect(() => {
@@ -27,6 +29,8 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       
       try {
         setIsModelLoading(true);
+        setError('');
+        
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
         );
@@ -39,7 +43,10 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
             delegate: "GPU"
           },
           runningMode: "VIDEO",
-          numHands: 1
+          numHands: 1,
+          minHandDetectionConfidence: 0.5,
+          minHandPresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5
         });
 
         if (mounted) {
@@ -48,43 +55,89 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           setIsModelLoading(false);
         }
       } catch (error) {
-        console.error("Failed to load gesture recognizer:", error);
-        if (mounted) setIsModelLoading(false);
+        console.error("加载手势识别模型失败:", error);
+        if (mounted) {
+          setIsModelLoading(false);
+          setError('模型加载失败，请刷新重试');
+          setIsEnabled(false);
+        }
       }
     };
 
-    if (isEnabled && !isModelLoaded) {
+    if (isEnabled && !isModelLoaded && !recognizerRef.current) {
       loadModel();
     }
 
     return () => {
       mounted = false;
     };
-  }, [isEnabled, isModelLoaded]);
+  }, [isEnabled, isModelLoaded, setIsEnabled]);
 
   // Handle Camera & Detection Loop
   useEffect(() => {
-    if (!isEnabled || !recognizerRef.current || !videoRef.current) return;
-
-    let stream: MediaStream | null = null;
+    if (!isEnabled || !recognizerRef.current || !videoRef.current) {
+      // Clean up if disabled
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
+      return;
+    }
 
     const startCamera = async () => {
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setError('');
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { 
+            facingMode: 'user',
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          } 
+        });
+        
+        streamRef.current = stream;
+        
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.addEventListener('loadeddata', predictWebcam);
+          // Wait for video to be ready
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play().then(() => {
+              predictWebcam();
+            }).catch(err => {
+              console.error("视频播放失败:", err);
+              setError('视频播放失败');
+            });
+          };
         }
       } catch (err) {
-        console.error("Error accessing webcam:", err);
-        setIsEnabled(false); // Disable if camera fails
+        console.error("摄像头访问失败:", err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (errorMsg.includes('Permission denied') || errorMsg.includes('NotAllowedError')) {
+          setError('摄像头权限被拒绝，请在浏览器设置中允许访问');
+        } else if (errorMsg.includes('NotFoundError')) {
+          setError('未找到摄像头设备');
+        } else {
+          setError('摄像头启动失败: ' + errorMsg);
+        }
+        setIsEnabled(false);
       }
     };
 
     const predictWebcam = () => {
-      if (!videoRef.current || !recognizerRef.current) return;
+      if (!videoRef.current || !recognizerRef.current || !isEnabled) return;
 
       const video = videoRef.current;
+      
+      // Check if video is ready
+      if (video.readyState < 2) {
+        rafId.current = requestAnimationFrame(predictWebcam);
+        return;
+      }
+
       if (video.currentTime !== lastVideoTime.current) {
         lastVideoTime.current = video.currentTime;
         
@@ -92,7 +145,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           const results = recognizerRef.current.recognizeForVideo(video, Date.now());
           processResults(results);
         } catch (e) {
-            console.error(e);
+          console.error("手势识别错误:", e);
         }
       }
       
@@ -102,19 +155,23 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
     startCamera();
 
     return () => {
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (rafId.current) {
+        cancelAnimationFrame(rafId.current);
+        rafId.current = null;
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
       }
     };
-  }, [isEnabled, isModelLoaded]); // Re-run if enabled changes or model finishes loading
+  }, [isEnabled, isModelLoaded, setIsEnabled]);
 
   const processResults = (results: GestureRecognizerResult) => {
     if (results.gestures.length > 0) {
       const category = results.gestures[0][0].categoryName;
       const score = results.gestures[0][0].score;
 
-      if (score > 0.5) {
+      if (score > 0.6) {
         setDetectedGesture(category);
         
         // Map gestures
@@ -135,18 +192,29 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
 
   return (
     <div className="absolute bottom-32 right-8 z-40 flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 duration-500">
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-900/80 backdrop-blur-md px-4 py-3 rounded-lg border border-red-500/50 text-red-100 flex items-start gap-2 max-w-[250px]">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div className="text-xs">
+            <p className="font-bold mb-1">错误</p>
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
+
       {/* Loading State */}
       {isModelLoading && (
         <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 text-emerald-100 flex items-center gap-2">
-           <Loader2 className="animate-spin w-4 h-4" />
-           <span className="text-xs">加载模型中...</span>
+          <Loader2 className="animate-spin w-4 h-4" />
+          <span className="text-xs">加载模型中...</span>
         </div>
       )}
 
       {/* Video Preview */}
       <div className={cn(
         "relative w-48 h-36 bg-black rounded-xl overflow-hidden border-2 border-white/20 shadow-2xl transition-all",
-        isModelLoaded ? "opacity-100" : "opacity-0"
+        isModelLoaded && !error ? "opacity-100" : "opacity-0"
       )}>
         <video 
           ref={videoRef}
@@ -158,20 +226,21 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         
         {/* Gesture Indicator overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 text-center">
-            <span className="text-xs font-mono text-emerald-400 font-bold">
-                {detectedGesture ? `识别: ${detectedGesture}` : "等待手势..."}
-            </span>
+          <span className="text-xs font-mono text-emerald-400 font-bold">
+            {detectedGesture ? `识别: ${detectedGesture}` : "等待手势..."}
+          </span>
         </div>
       </div>
 
       {/* Helper Text */}
-      {isModelLoaded && (
+      {isModelLoaded && !error && (
         <div className="bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/10 max-w-[200px] text-xs text-gray-300 space-y-1">
-            <p>🖐️ <b>张开手掌</b>: 散开</p>
-            <p>✊ <b>握紧拳头</b>: 聚合</p>
-            <p>✌️ <b>V字手势</b>: 爱心</p>
+          <p>🖐️ <b>张开手掌</b>: 散开</p>
+          <p>✊ <b>握紧拳头</b>: 聚合</p>
+          <p>✌️ <b>V字手势</b>: 爱心</p>
         </div>
       )}
     </div>
   );
 };
+
