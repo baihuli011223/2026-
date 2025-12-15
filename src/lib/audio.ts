@@ -149,9 +149,7 @@ class AudioManager {
         this.effectSynth.triggerAttackRelease(["E5", "G5", "C6"], "8n", now + 0.1);
         break;
       case 'heart':
-        // Warm major 7th chord
-        this.effectSynth.set({ oscillator: { type: 'triangle' }, envelope: { attack: 0.5, decay: 1, sustain: 0.5, release: 2 } });
-        this.effectSynth.triggerAttackRelease(["F4", "A4", "C5", "E5"], "1n", now);
+        // 用户反馈音效刺耳，已移除爱心切换音效
         break;
     }
   }
