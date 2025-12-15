@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { TreePine, Heart, Move, Volume2, VolumeX, Play } from 'lucide-react';
+import { TreePine, Heart, Move, Volume2, VolumeX, Play, Camera, CameraOff } from 'lucide-react';
 import { audioManager } from '../../lib/audio';
 import { cn } from '../../lib/utils';
+import { GestureController } from './GestureController';
 
 interface UIProps {
   currentMode: 'tree' | 'heart' | 'scatter';
@@ -12,6 +13,7 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
   const [isAudioStarted, setIsAudioStarted] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const [isCameraEnabled, setIsCameraEnabled] = useState(false);
 
   const handleStart = async () => {
     await audioManager.init();
@@ -21,9 +23,11 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
   };
 
   const handleModeChange = (mode: 'tree' | 'heart' | 'scatter') => {
+    if (mode === currentMode) return;
     setMode(mode);
     audioManager.playEffect(mode);
   };
+
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value);
@@ -71,6 +75,17 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
 
       {/* Volume Control */}
       <div className="absolute top-8 right-8 z-40 flex items-center gap-3 bg-black/20 backdrop-blur-md p-3 rounded-full border border-white/10">
+        <button 
+          onClick={() => setIsCameraEnabled(!isCameraEnabled)} 
+          className={cn(
+            "p-2 rounded-full transition-all mr-2",
+            isCameraEnabled ? "bg-emerald-600 text-white" : "bg-white/10 text-emerald-100 hover:text-white"
+          )}
+          title="开启/关闭手势控制"
+        >
+          {isCameraEnabled ? <Camera size={20} /> : <CameraOff size={20} />}
+        </button>
+
         <button onClick={toggleMute} className="text-emerald-100 hover:text-white transition-colors">
           {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
         </button>
@@ -109,6 +124,12 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
           />
         </div>
       </div>
+      {/* Gesture Controller */}
+      <GestureController 
+        isEnabled={isCameraEnabled} 
+        setIsEnabled={setIsCameraEnabled}
+        onModeChange={handleModeChange} 
+      />
     </>
   );
 };

@@ -20,10 +20,15 @@
   - [ ] 实现控制按钮 (散开、聚合、爱心)
   - [ ] 实现音量控制滑块
   - [ ] 美化界面 (Tailwind CSS, Shadcn)
-  - [ ] Step 3.5: 实现彩带粒子系统 (Ribbon)
-    - [ ] 创建 RibbonParticles 组件
-    - [ ] 实现螺旋算法 (Tree模式) 与 轮廓算法 (Heart模式)
-    - [ ] 整合进 Scene 场景
+  - [x] Step 3.5: 实现彩带粒子系统 (Ribbon)
+    - [x] 创建 RibbonParticles 组件
+    - [x] 实现螺旋算法 (Tree模式) 与 轮廓算法 (Heart模式)
+    - [x] 整合进 Scene 场景
+  - [x] Step 3.6: 实现手势交互 (MediaPipe)
+    - [x] 创建 GestureController 组件
+    - [x] 集成摄像头视频流与模型加载
+    - [x] 映射手势: Open_Palm->Scatter, Closed_Fist->Tree, Victory->Heart
+    - [x] 在 UI 中添加开启/关闭摄像头的开关
 - [ ] Step 6: 整合与优化
   - [ ] 调整粒子颜色、大小、光效
   - [ ] 优化性能与交互体验
