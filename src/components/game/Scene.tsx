@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { TreeParticles } from './TreeParticles';
+import { RibbonParticles } from './RibbonParticles';
 import { Snow } from './Snow';
 
 interface SceneProps {
@@ -23,6 +24,7 @@ export const Scene: React.FC<SceneProps> = ({ mode }) => {
       
       {/* Particles */}
       <TreeParticles mode={mode} />
+      <RibbonParticles mode={mode} />
       <Snow />
 
       {/* Post Processing */}
