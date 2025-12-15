@@ -17,6 +17,9 @@ class AudioManager {
     return AudioManager.instance;
   }
 
+  // Effect Synth (Reused to prevent lag)
+  private effectSynth: Tone.PolySynth | null = null;
+
   public async init() {
     if (this.isInitialized) return;
     await Tone.start();
@@ -35,11 +38,16 @@ class AudioManager {
       oscillator: { type: "sine" },
       envelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 1.2 }
     }).toDestination();
+
+    // Effect Synth
+    this.effectSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+    this.effectSynth.volume.value = -5;
     
     // Add reverb
     const reverb = new Tone.Reverb({ decay: 4, wet: 0.3 }).toDestination();
     this.bgmSynth.connect(reverb);
     bassSynth.connect(reverb);
+    this.effectSynth.connect(reverb);
     bassSynth.volume.value = -8;
 
     // Jingle Bells Melody (Chorus)
@@ -120,37 +128,32 @@ class AudioManager {
   }
 
   public playEffect(type: 'scatter' | 'tree' | 'heart') {
-    if (!this.isInitialized) return;
+    if (!this.isInitialized || !this.effectSynth) return;
 
-    const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-    synth.volume.value = -5;
+    // Stop previous notes if any rapidly
+    this.effectSynth.releaseAll();
 
     const now = Tone.now();
 
     switch (type) {
       case 'scatter':
         // Descending sparkly sound
-        synth.set({ envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } });
-        synth.triggerAttackRelease(["C6", "G5", "E5", "C5"], "16n", now);
-        synth.triggerAttackRelease(["B5", "F#5", "D#5", "B4"], "16n", now + 0.1);
+        this.effectSynth.set({ envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } });
+        this.effectSynth.triggerAttackRelease(["C6", "G5", "E5", "C5"], "16n", now);
+        this.effectSynth.triggerAttackRelease(["B5", "F#5", "D#5", "B4"], "16n", now + 0.1);
         break;
       case 'tree':
         // Ascending magical sound
-        synth.set({ envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 1 } });
-        synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "8n", now);
-        synth.triggerAttackRelease(["E5", "G5", "C6"], "8n", now + 0.1);
+        this.effectSynth.set({ envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 1 } });
+        this.effectSynth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "8n", now);
+        this.effectSynth.triggerAttackRelease(["E5", "G5", "C6"], "8n", now + 0.1);
         break;
       case 'heart':
         // Warm major 7th chord
-        synth.set({ oscillator: { type: 'triangle' }, envelope: { attack: 0.5, decay: 1, sustain: 0.5, release: 2 } });
-        synth.triggerAttackRelease(["F4", "A4", "C5", "E5"], "1n", now);
+        this.effectSynth.set({ oscillator: { type: 'triangle' }, envelope: { attack: 0.5, decay: 1, sustain: 0.5, release: 2 } });
+        this.effectSynth.triggerAttackRelease(["F4", "A4", "C5", "E5"], "1n", now);
         break;
     }
-
-    // Clean up synth after a few seconds
-    setTimeout(() => {
-      synth.dispose();
-    }, 3000);
   }
 }
 

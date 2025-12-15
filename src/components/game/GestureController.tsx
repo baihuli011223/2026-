@@ -19,6 +19,12 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
   const rafId = useRef<number | null>(null);
   const lastVideoTime = useRef<number>(-1);
   const streamRef = useRef<MediaStream | null>(null);
+  
+  // Use ref to keep track of the latest callback without triggering effect re-run
+  const onModeChangeRef = useRef(onModeChange);
+  useEffect(() => {
+    onModeChangeRef.current = onModeChange;
+  }, [onModeChange]);
 
   // Load Model
   useEffect(() => {
@@ -176,11 +182,11 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         
         // Map gestures
         if (category === 'Open_Palm') {
-          onModeChange('scatter');
+          onModeChangeRef.current('scatter');
         } else if (category === 'Closed_Fist') {
-          onModeChange('tree');
+          onModeChangeRef.current('tree');
         } else if (category === 'Victory' || category === 'ILoveYou' || category === 'Thumb_Up') {
-          onModeChange('heart');
+          onModeChangeRef.current('heart');
         }
       }
     } else {
