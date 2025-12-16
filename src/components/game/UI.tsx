@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { TreePine, Heart, Move, Volume2, VolumeX, Play, Camera, CameraOff } from 'lucide-react';
+import { TreePine, Heart, Move, Volume2, VolumeX, Play, Camera, CameraOff, Globe, Flower2 } from 'lucide-react';
 import { audioManager } from '../../lib/audio';
 import { cn } from '../../lib/utils';
 import { GestureController } from './GestureController';
 
 interface UIProps {
-  currentMode: 'tree' | 'heart' | 'scatter';
-  setMode: (mode: 'tree' | 'heart' | 'scatter') => void;
+  currentMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+  setMode: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => void;
 }
 
 export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
@@ -22,10 +22,10 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
     setIsAudioStarted(true);
   };
 
-  const handleModeChange = (mode: 'tree' | 'heart' | 'scatter') => {
+  const handleModeChange = (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => {
     if (mode === currentMode) return;
     setMode(mode);
-    audioManager.playEffect(mode);
+    audioManager.playEffect(mode as any); // Type assertion if needed, but we'll update audioManager too
   };
 
 
@@ -101,8 +101,8 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
       </div>
 
       {/* Bottom Controls */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-40">
-        <div className="flex items-center gap-6 p-4 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl">
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-40 w-full max-w-4xl px-4 flex justify-center">
+        <div className="flex items-center gap-4 p-4 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-x-auto">
           <ControlButton
             isActive={currentMode === 'scatter'}
             onClick={() => handleModeChange('scatter')}
@@ -113,14 +113,26 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
             isActive={currentMode === 'tree'}
             onClick={() => handleModeChange('tree')}
             icon={<TreePine size={24} />}
-            label="聚合成树"
+            label="聚合"
             isMain
           />
           <ControlButton
             isActive={currentMode === 'heart'}
             onClick={() => handleModeChange('heart')}
             icon={<Heart size={24} />}
-            label="粒子爱心"
+            label="爱心"
+          />
+          <ControlButton
+            isActive={currentMode === 'saturn'}
+            onClick={() => handleModeChange('saturn')}
+            icon={<Globe size={24} />}
+            label="土星"
+          />
+          <ControlButton
+            isActive={currentMode === 'flower'}
+            onClick={() => handleModeChange('flower')}
+            icon={<Flower2 size={24} />}
+            label="花朵"
           />
         </div>
       </div>

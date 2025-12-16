@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
 
-type Mode = 'tree' | 'heart' | 'scatter';
+type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
 
 interface RibbonParticlesProps {
   mode: Mode;
@@ -52,9 +52,6 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
       const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
       const z = 0; // Flat ribbon for heart outline looks cleaner? Or slight spiral?
       
-      // Let's make it a 3D tube/spiral around the heart outline effectively
-      // Or just a clean outline
-      
       pos[i * 3] = x * scale;
       pos[i * 3 + 1] = y * scale + 2; 
       pos[i * 3 + 2] = z;
@@ -62,7 +59,59 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // 3. Scatter Mode: Random
+  // 3. Saturn Mode: Ring accents
+  const saturnPos = useMemo(() => {
+    const pos = new Float32Array(COUNT * 3);
+    for (let i = 0; i < COUNT; i++) {
+      // Ribbon follows the ring but with some vertical variation or multiple rings
+      const angle = (i / COUNT) * Math.PI * 2 * 3; // 3 loops
+      const dist = 4.0 + Math.sin(angle * 5) * 0.5; // Wavy ring
+      
+      let x = Math.cos(angle) * dist;
+      let y = (Math.random() - 0.5) * 0.5; 
+      let z = Math.sin(angle) * dist;
+
+      // Tilt same as main Saturn (0.4 rad)
+      const tilt = 0.4;
+      const yOld = y;
+      const zOld = z;
+      y = yOld * Math.cos(tilt) - zOld * Math.sin(tilt);
+      z = yOld * Math.sin(tilt) + zOld * Math.cos(tilt);
+
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
+    }
+    return pos;
+  }, []);
+
+  // 4. Flower Mode: Petal Outlines
+  const flowerPos = useMemo(() => {
+    const pos = new Float32Array(COUNT * 3);
+    
+    for (let i = 0; i < COUNT; i++) {
+      const t = (i / COUNT) * Math.PI * 2 * 5; // 5 full turns
+      const rSpiral = (i / COUNT) * 5.0;
+      
+      let x = rSpiral * Math.cos(t);
+      let y = rSpiral * 0.2 + 0.5; // Slight cone up
+      let z = rSpiral * Math.sin(t);
+      
+      // Tilt
+      const tilt = 0.5;
+      const yOld = y;
+      const zOld = z;
+      y = yOld * Math.cos(tilt) - zOld * Math.sin(tilt);
+      z = yOld * Math.sin(tilt) + zOld * Math.cos(tilt);
+
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
+    }
+    return pos;
+  }, []);
+
+  // 5. Scatter Mode: Random
   const scatterPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
     const sphere = random.inSphere(new Float32Array(COUNT * 3), { radius: 12 });
@@ -91,8 +140,10 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   useEffect(() => {
     if (mode === 'tree') targetPosRef.current = treePos;
     else if (mode === 'heart') targetPosRef.current = heartPos;
+    else if (mode === 'saturn') targetPosRef.current = saturnPos;
+    else if (mode === 'flower') targetPosRef.current = flowerPos;
     else targetPosRef.current = scatterPos;
-  }, [mode, treePos, heartPos, scatterPos]);
+  }, [mode, treePos, heartPos, scatterPos, saturnPos, flowerPos]);
 
   useFrame((state, delta) => {
     const dampSpeed = 2.5; // Slightly faster than tree particles

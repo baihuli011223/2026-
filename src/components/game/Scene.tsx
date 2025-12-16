@@ -7,7 +7,7 @@ import { RibbonParticles } from './RibbonParticles';
 import { Snow } from './Snow';
 
 interface SceneProps {
-  mode: 'tree' | 'heart' | 'scatter';
+  mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
 }
 
 export const Scene: React.FC<SceneProps> = ({ mode }) => {
@@ -42,7 +42,7 @@ export const Scene: React.FC<SceneProps> = ({ mode }) => {
         enablePan={false} 
         minDistance={5} 
         maxDistance={30} 
-        autoRotate={mode === 'tree'}
+        autoRotate={mode === 'tree' || mode === 'saturn'}
         autoRotateSpeed={0.5}
       />
     </Canvas>

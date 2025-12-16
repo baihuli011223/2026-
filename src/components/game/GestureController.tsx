@@ -4,7 +4,7 @@ import { Camera, CameraOff, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface GestureControllerProps {
-  onModeChange: (mode: 'tree' | 'heart' | 'scatter') => void;
+  onModeChange: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => void;
   isEnabled: boolean;
   setIsEnabled: (enabled: boolean) => void;
 }
@@ -185,8 +185,12 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           onModeChangeRef.current('scatter');
         } else if (category === 'Closed_Fist') {
           onModeChangeRef.current('tree');
-        } else if (category === 'Victory' || category === 'ILoveYou' || category === 'Thumb_Up') {
+        } else if (category === 'Victory') {
           onModeChangeRef.current('heart');
+        } else if (category === 'Thumb_Up') {
+          onModeChangeRef.current('saturn');
+        } else if (category === 'Pointing_Up') {
+          onModeChangeRef.current('flower');
         }
       }
     } else {
@@ -244,6 +248,8 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           <p>🖐️ <b>张开手掌</b>: 散开</p>
           <p>✊ <b>握紧拳头</b>: 聚合</p>
           <p>✌️ <b>V字手势</b>: 爱心</p>
+          <p>👍 <b>大拇指上</b>: 土星</p>
+          <p>👆 <b>食指向上</b>: 花朵</p>
         </div>
       )}
     </div>

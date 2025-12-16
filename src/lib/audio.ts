@@ -127,7 +127,7 @@ class AudioManager {
     }
   }
 
-  public playEffect(type: 'scatter' | 'tree' | 'heart') {
+  public playEffect(type: 'scatter' | 'tree' | 'heart' | 'saturn' | 'flower') {
     if (!this.isInitialized || !this.effectSynth) return;
 
     // Stop previous notes if any rapidly
@@ -149,7 +149,9 @@ class AudioManager {
         this.effectSynth.triggerAttackRelease(["E5", "G5", "C6"], "8n", now + 0.1);
         break;
       case 'heart':
-        // 用户反馈音效刺耳，已移除爱心切换音效
+      case 'saturn':
+      case 'flower':
+        // 用户反馈音效刺耳，已移除特殊形状的切换音效
         break;
     }
   }
