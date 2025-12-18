@@ -38,7 +38,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         setError('');
         
         const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+          "https://resource-static.cdn.bcebos.com/common/task-vision"
         );
         
         if (!mounted) return;
