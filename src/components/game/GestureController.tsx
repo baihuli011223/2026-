@@ -201,13 +201,13 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
   if (!isEnabled) return null;
 
   return (
-    <div className="absolute bottom-32 right-8 z-40 flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 duration-500">
+    <div className="absolute bottom-4 right-4 z-40 flex flex-col items-end gap-2 animate-in fade-in slide-in-from-bottom-10 duration-500">
       {/* Error State */}
       {error && (
-        <div className="bg-red-900/80 backdrop-blur-md px-4 py-3 rounded-lg border border-red-500/50 text-red-100 flex items-start gap-2 max-w-[250px]">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-          <div className="text-xs">
-            <p className="font-bold mb-1">错误</p>
+        <div className="bg-red-900/80 backdrop-blur-md px-3 py-2 rounded-lg border border-red-500/50 text-red-100 flex items-start gap-2 max-w-[200px]">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          <div className="text-[10px]">
+            <p className="font-bold mb-0.5">错误</p>
             <p>{error}</p>
           </div>
         </div>
@@ -215,15 +215,15 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
 
       {/* Loading State */}
       {isModelLoading && (
-        <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10 text-emerald-100 flex items-center gap-2">
-          <Loader2 className="animate-spin w-4 h-4" />
-          <span className="text-xs">加载模型中...</span>
+        <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-emerald-100 flex items-center gap-2">
+          <Loader2 className="animate-spin w-3 h-3" />
+          <span className="text-[10px]">加载模型...</span>
         </div>
       )}
 
-      {/* Video Preview */}
+      {/* Video Preview - Miniaturized */}
       <div className={cn(
-        "relative w-48 h-36 bg-black rounded-xl overflow-hidden border-2 border-white/20 shadow-2xl transition-all",
+        "relative w-24 h-24 bg-black/50 rounded-lg overflow-hidden border border-white/10 shadow-lg transition-all hover:scale-150 origin-bottom-right group", // Default very small, hover to enlarge
         isModelLoaded && !error ? "opacity-100" : "opacity-0"
       )}>
         <video 
@@ -231,23 +231,21 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           autoPlay 
           playsInline
           muted
-          className="w-full h-full object-cover -scale-x-100" // Mirror effect
+          className="w-full h-full object-cover -scale-x-100 opacity-80 group-hover:opacity-100 transition-opacity" // Slightly transparent by default
         />
         
-        {/* Gesture Indicator overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2 text-center">
-          <span className="text-xs font-mono text-emerald-400 font-bold">
-            {detectedGesture ? `识别: ${detectedGesture}` : "等待手势..."}
+        {/* Gesture Indicator overlay - Compact */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/70 backdrop-blur-[2px] p-1 text-center">
+          <span className="text-[10px] font-mono text-emerald-400 font-bold block truncate">
+            {detectedGesture ? detectedGesture : "等待手势"}
           </span>
         </div>
       </div>
 
-      {/* Helper Text */}
+      {/* Helper Text - Compact & Auto-hide */}
       {isModelLoaded && !error && (
-        <div className="bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/10 max-w-[200px] text-xs text-gray-300 space-y-1">
-          <p>🖐️ <b>张开手掌</b>: 散开</p>
-          <p>✊ <b>握紧拳头</b>: 聚合(圣诞树)</p>
-          <p>✌️ <b>V字手势</b>: 爱心</p>
+        <div className="bg-black/30 backdrop-blur-sm p-2 rounded-lg border border-white/5 text-[10px] text-gray-400 space-y-0.5 text-right opacity-50 hover:opacity-100 transition-opacity">
+          <p>🖐️ 散开 | ✊ 聚合 | ✌️ 爱心</p>
         </div>
       )}
     </div>
