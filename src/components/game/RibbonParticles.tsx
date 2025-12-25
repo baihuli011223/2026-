@@ -55,6 +55,19 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     }
     return pos;
   }, []);
+  // Colors - Always Gold/Glowing
+  const colors = useMemo(() => {
+    const cols = new Float32Array(COUNT * 3);
+    const c = new THREE.Color();
+    for (let i = 0; i < COUNT; i++) {
+      // Gold/Orange gradient
+      c.setHSL(0.1 + Math.random() * 0.05, 1, 0.6 + Math.random() * 0.4);
+      cols[i * 3] = c.r;
+      cols[i * 3 + 1] = c.g;
+      cols[i * 3 + 2] = c.b;
+    }
+    return cols;
+  }, []);
 
   // Animation Buffers
   // Store initial "u" and "v" for each particle to re-calculate positions in animation loop
