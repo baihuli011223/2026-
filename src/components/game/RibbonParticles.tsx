@@ -18,19 +18,36 @@ const TURNS = 6; // 螺旋圈数
 export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   const points = useRef<THREE.Points>(null!);
   
-  // 1. Tree Mode: Spiral Ribbon
-  const treePos = useMemo(() => {
+  // Mobius Strip Parameters
+  const RADIUS = 7;
+  const WIDTH = 3;
+  
+  // 1. Mobius Strip Logic
+  const mobiusPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
     for (let i = 0; i < COUNT; i++) {
-      const t = i / COUNT; // 0 -> 1 (bottom to top)
+      // Distribute particles along the strip
+      // u: angle around the ring [0, 2PI]
+      // v: width across the strip [-WIDTH/2, WIDTH/2]
       
-      const h = t * TREE_HEIGHT; 
-      const r = (1 - t) * TREE_RADIUS; 
-      const angle = t * Math.PI * 2 * TURNS;
+      const u = (i / COUNT) * Math.PI * 2;
+      const v = (Math.random() - 0.5) * WIDTH;
       
-      const x = r * Math.cos(angle);
-      const y = h - TREE_HEIGHT / 2;
-      const z = r * Math.sin(angle);
+      // Mobius Strip Parametric Equations (Oriented horizontally)
+      // Standard Mobius: 
+      // x = (R + v * cos(u/2)) * cos(u)
+      // y = (R + v * cos(u/2)) * sin(u)
+      // z = v * sin(u/2)
+      
+      // We swap y and z to make it horizontal (flat on XZ plane), then tilt it?
+      // Actually let's just keep standard and rotate the whole mesh in useFrame
+      
+      const R = RADIUS;
+      
+      // Calculate base position
+      const x = (R + v * Math.cos(u/2)) * Math.cos(u);
+      const z = (R + v * Math.cos(u/2)) * Math.sin(u);
+      const y = v * Math.sin(u/2);
 
       pos[i * 3] = x;
       pos[i * 3 + 1] = y;
@@ -39,81 +56,69 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // 2. Scatter Mode: Random
-  const scatterPos = useMemo(() => {
-    const pos = new Float32Array(COUNT * 3);
-    const sphere = random.inSphere(new Float32Array(COUNT * 3), { radius: 12 });
-    pos.set(sphere);
-    return pos;
-  }, []);
-
-  // Colors - Always Gold/Glowing
-  const colors = useMemo(() => {
-    const cols = new Float32Array(COUNT * 3);
-    const c = new THREE.Color();
-    for (let i = 0; i < COUNT; i++) {
-      // Gold/Orange gradient
-      c.setHSL(0.1 + Math.random() * 0.05, 1, 0.6 + Math.random() * 0.4);
-      cols[i * 3] = c.r;
-      cols[i * 3 + 1] = c.g;
-      cols[i * 3 + 2] = c.b;
-    }
-    return cols;
-  }, []);
-
   // Animation Buffers
-  const currentPos = useMemo(() => new Float32Array(treePos), [treePos]);
-  const targetPosRef = useRef(treePos);
+  // Store initial "u" and "v" for each particle to re-calculate positions in animation loop
+  const particleParams = useMemo(() => {
+    const params = new Float32Array(COUNT * 2); // u, v
+    for(let i=0; i<COUNT; i++) {
+        params[i*2] = (i / COUNT) * Math.PI * 2; // u
+        params[i*2+1] = (Math.random() - 0.5) * WIDTH; // v
+    }
+    return params;
+  }, []);
+
+  const currentPos = useMemo(() => new Float32Array(mobiusPos), [mobiusPos]);
   const materialRef = useRef<THREE.PointsMaterial>(null!);
 
-  useEffect(() => {
-    if (mode === 'tree') {
-      targetPosRef.current = treePos;
-    } else {
-      // 在非Tree模式下，彩带粒子散开并消失
-      targetPosRef.current = scatterPos;
-    }
-  }, [mode, treePos, scatterPos]);
-
   useFrame((state, delta) => {
-    const dampSpeed = 2.5;
+    const time = state.clock.elapsedTime;
     
-    // Opacity Animation
-    if (materialRef.current) {
-      const targetOpacity = mode === 'tree' ? 1 : 0;
-      materialRef.current.opacity += (targetOpacity - materialRef.current.opacity) * dampSpeed * delta;
-      materialRef.current.visible = materialRef.current.opacity > 0.01;
-    }
+    // Rotate the entire group slowly
+    points.current.rotation.y = time * 0.1;
+    points.current.rotation.z = Math.sin(time * 0.2) * 0.1; // Gentle tilt
+
+    // Animate particles flowing along the Mobius strip
+    // We recalculate positions based on updated 'u'
     
+    const speed = 0.5; // Flow speed
+    const R = RADIUS;
+
     for (let i = 0; i < COUNT; i++) {
-      const ix = i * 3;
-      const iy = i * 3 + 1;
-      const iz = i * 3 + 2;
-
-      // Lerp Position
-      currentPos[ix] += (targetPosRef.current[ix] - currentPos[ix]) * dampSpeed * delta;
-      currentPos[iy] += (targetPosRef.current[iy] - currentPos[iy]) * dampSpeed * delta;
-      currentPos[iz] += (targetPosRef.current[iz] - currentPos[iz]) * dampSpeed * delta;
-
-      // Add "flowing" animation effect along the ribbon in Tree mode
-      if (mode === 'tree') {
-        const time = state.clock.elapsedTime;
-        // Small rotation of the whole ribbon logic could go here, or individual particle wobble
-        // Let's make particles shimmer by moving slightly
-        const wobble = Math.sin(time * 2 + i * 0.1) * 0.05;
-        currentPos[iy] += wobble; 
-      }
+      let u = particleParams[i*2] + time * speed; 
+      const v = particleParams[i*2+1];
+      
+      // Mobius Parametric Calculation
+      // x = (R + v * cos(u/2)) * cos(u)
+      // y = v * sin(u/2)
+      // z = (R + v * cos(u/2)) * sin(u)
+      // To make it lie flat on XZ plane: swap y and z components relative to standard mobius
+      // Standard Mobius (u=[0,2PI], v=[-w,w]):
+      // x = (R + v*cos(u/2)) * cos(u)
+      // y = (R + v*cos(u/2)) * sin(u)
+      // z = v*sin(u/2)
+      
+      // We want the ring to encircle the tree (which is along Y axis).
+      // So the main ring should be in X-Z.
+      // x = (R + v*cos(u/2)) * cos(u)
+      // z = (R + v*cos(u/2)) * sin(u)
+      // y = v*sin(u/2)
+      
+      const x = (R + v * Math.cos(u/2)) * Math.cos(u);
+      const z = (R + v * Math.cos(u/2)) * Math.sin(u);
+      const y = v * Math.sin(u/2);
+      
+      // Add falling effect? 
+      // User asked for "infinite Mobius loop" + "stars falling"
+      // Maybe add a slight offset in Y that loops?
+      // Actually, flowing ALONG the Mobius strip IS the infinite loop effect.
+      // Let's add some "sparkle" jitter
+      
+      currentPos[i * 3] = x;
+      currentPos[i * 3 + 1] = y;
+      currentPos[i * 3 + 2] = z;
     }
 
     points.current.geometry.attributes.position.needsUpdate = true;
-    
-    // Rotate the whole group slowly for dynamic effect
-    if (mode === 'tree') {
-       points.current.rotation.y += delta * 0.2;
-    } else {
-       // Reset rotation or keep spinning? Keep spinning looks cool for scatter
-       points.current.rotation.y += delta * 0.05;
-    }
   });
 
   return (
@@ -132,16 +137,15 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
           itemSize={3}
         />
       </bufferGeometry>
-      {/* Larger, brighter particles for the ribbon */}
+      {/* Star texture or just points */}
       <PointMaterial
         ref={materialRef}
         transparent
         vertexColors
-        size={0.2} 
+        size={0.15} 
         sizeAttenuation={true}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        toneMapped={false} 
       />
     </points>
   );
