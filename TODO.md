@@ -1,40 +1,22 @@
-# Task: 3D 粒子圣诞树游戏开发
+# Task: 3D 粒子圣诞树（固定样式版）
 
 ## Plan
-- [ ] Step 1: 环境配置与依赖安装
-  - [ ] 安装 three, @react-three/fiber, @react-three/drei, @react-three/postprocessing, maath, tone
-  - [ ] 创建基础目录结构
-- [ ] Step 2: 音频系统实现 (Tone.js)
-  - [ ] 创建 AudioContext 管理器
-  - [ ] 实现背景音乐 (Ambient Pad)
-  - [ ] 实现交互音效 (Chimes/Sparkles)
-- [ ] Step 3: 3D 场景基础搭建
-  - [ ] 配置 Canvas, Camera, OrbitControls
-  - [ ] 添加环境光与辉光效果 (Bloom)
-  - [ ] 实现背景飘雪效果 (Snow)
-- [ ] Step 4: 粒子系统核心逻辑
-  - [ ] 实现粒子位置生成算法 (Tree, Heart, Explode)
-  - [ ] 实现粒子组件 (Points) 与 材质 (Shader/Sprite)
-  - [ ] 实现状态切换与动画插值 (maath)
-- [ ] Step 5: UI 交互层开发
-  - [ ] 实现控制按钮 (散开、聚合、爱心)
-  - [ ] 实现音量控制滑块
-  - [ ] 美化界面 (Tailwind CSS, Shadcn)
-  - [x] Step 3.5: 实现彩带粒子系统 (Ribbon)
-    - [x] 创建 RibbonParticles 组件
-    - [x] 实现螺旋算法 (Tree模式) 与 轮廓算法 (Heart模式)
-    - [x] 整合进 Scene 场景
-  - [x] Step 3.6: 实现手势交互 (MediaPipe)
-    - [x] 创建 GestureController 组件
-    - [x] 集成摄像头视频流与模型加载
-    - [x] 映射手势: Open_Palm->Scatter, Closed_Fist->Tree, Victory->Heart
-    - [x] 在 UI 中添加开启/关闭摄像头的开关
-- [ ] Step 6: 整合与优化
-  - [ ] 调整粒子颜色、大小、光效
-  - [ ] 优化性能与交互体验
-  - [ ] 最终测试
+- [x] Step 1: 分析现有代码与需求匹配度
+  - [x] 确认现有代码包含 Tree 模式
+  - [x] 决定移除多模式切换功能，锁定为单一 Tree 模式
+- [x] Step 2: 清理不必要的依赖与功能
+  - [x] 移除 @mediapipe/tasks-vision (手势控制)
+  - [x] 移除 Babylon.js (使用现有 Three.js 架构)
+  - [x] 删除 GestureController 组件
+- [x] Step 3: 修改核心逻辑与 UI
+  - [x] 修改 App.tsx 固定 mode="tree"
+  - [x] 修改 UI.tsx 移除模式切换按钮与逻辑
+  - [x] 保留音频控制与标题
+- [x] Step 4: 验证与优化
+  - [x] 运行 Lint 检查
+  - [x] 确认代码无冗余报错
 
 ## Notes
-- 粒子数量控制在 3000 以内以保证流畅度。
-- 使用 Tone.js 合成音效，避免外部资源依赖问题。
-- 确保 Bloom 效果不会过度曝光。
+- 已成功将多模态粒子系统转换为单一的静态（但在微观上动态）粒子圣诞树。
+- 只有 Tree 模式和配套的 Ribbon 效果被激活。
+
