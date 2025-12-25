@@ -24,19 +24,60 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
     const colorObj = new THREE.Color();
 
     for (let i = 0; i < COUNT; i++) {
-      // 90% Tree body (Cone), 10% Trunk
+      // 90% Tree body (Layered Cones), 10% Trunk
       const isTrunk = i > COUNT * 0.9;
       
       let x, y, z;
       if (!isTrunk) {
-        // Cone
-        const h = Math.random() * TREE_HEIGHT; // 0 to 10
-        const r = (1 - h / TREE_HEIGHT) * TREE_RADIUS * Math.sqrt(Math.random()); // Tapered radius
+        // Layered Tree Logic
+        const LAYERS = 8;
+        // Normalized height 0 to 1
+        let h = Math.random(); 
+        
+        // Calculate which layer this particle belongs to
+        // Map h to discrete layers
+        // We want particles distributed across height, but organized in tiers.
+        
+        // Simple way: 
+        // y is actual height (-TREE_HEIGHT/2 to TREE_HEIGHT/2)
+        // Let's work with normalized y (0 to 1) first
+        
+        // Each layer is a frustum.
+        // Radius at bottom of layer i > Radius at top of layer i.
+        // Radius at bottom of layer i > Radius at bottom of layer i+1 (above).
+        
+        const layerHeight = 1.0 / LAYERS;
+        const currentLayer = Math.floor(h * LAYERS); // 0 to 7
+        
+        // Local height within layer (0 to 1)
+        const localH = (h * LAYERS) % 1;
+        
+        // Base radius for the whole tree at this height
+        // Linear taper: R * (1 - h)
+        const baseConeR = (1 - h) * TREE_RADIUS;
+        
+        // Add "Skirt" flare effect for each layer
+        // At the bottom of a layer (localH=0), we want it wider.
+        // At the top of a layer (localH=1), we want it narrower (to match base cone or slightly wider).
+        
+        // Flare factor: 0 at top, 1 at bottom?
+        // Let's use: (1 - localH) * FLARE_AMOUNT
+        const flare = (1 - localH) * 0.8; 
+        
+        // Final radius
+        const r = baseConeR + flare;
+        
+        // Improve distribution: concentrate particles on the surface?
+        // Or fill volume? Let's do surface + slight volume
+        // Math.sqrt(Math.random()) for uniform disk, Math.pow(Math.random(), 0.5) etc.
+        // Let's keep it somewhat volumetric but weighted to surface
+        const rFinal = r * Math.pow(Math.random(), 0.4); 
+
         const theta = Math.random() * Math.PI * 2;
         
-        x = r * Math.cos(theta);
-        y = h - TREE_HEIGHT / 2; // Center vertically
-        z = r * Math.sin(theta);
+        x = rFinal * Math.cos(theta);
+        y = h * TREE_HEIGHT - TREE_HEIGHT / 2; // Center vertically
+        z = rFinal * Math.sin(theta);
         
         // Color: Emerald Green variants
         if (Math.random() > 0.9) {
