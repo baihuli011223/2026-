@@ -86,34 +86,23 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   useFrame((state, delta) => {
     const time = state.clock.elapsedTime;
     
-    // Rotate the entire group slowly - Reduced speed significantly
-    // 添加一点基于时间的轻微摆动，模拟随音乐律动的感觉
-    points.current.rotation.y = time * 0.05 + Math.sin(time * 0.5) * 0.05;
-    points.current.rotation.z = Math.sin(time * 0.2) * 0.1; // Gentle tilt
+    // Rotate the entire group slowly - Clockwise (Negative)
+    // 顺时针匀速旋转，无晃动
+    points.current.rotation.y = -time * 0.1;
+    // 固定倾斜角度，不再摆动
+    points.current.rotation.z = 0.2; 
 
     // Animate particles flowing along the Mobius strip
     // We recalculate positions based on updated 'u'
     
-    // 降低流动速度，使其更优雅
-    // 140 BPM 约等于 2.33 Hz，也就是约 0.43 秒一拍
-    // 我们可以让速度有一个基于音乐节奏的轻微波动
-    const baseSpeed = 0.15; // 原来是 0.5，显著降低
-    const rhythm = Math.sin(time * 2.33) * 0.05; // 模拟 140BPM 的律动
-    const currentSpeed = baseSpeed + rhythm;
+    // 匀速流动，移除律动
+    const baseSpeed = 0.15; 
 
     const R = RADIUS;
 
     for (let i = 0; i < COUNT; i++) {
-      // 更新 u (位置参数)
-      // 注意：这里我们需要累加 delta * speed 才能正确实现变速运动
-      // 但为了简化计算且之前的逻辑是基于 time 的线性计算，
-      // 我们直接用 time * speed 会导致变速时位置跳变。
-      // 所以这里我们简单地用 time * baseSpeed + time相关的相位
-      
-      // 更正：为了平滑变速，最好是积分，但简单的视觉欺骗是：
-      // u = initial + time * base + sin(time) * factor
-      
-      let u = particleParams[i*2] + time * baseSpeed + Math.sin(time * 2) * 0.1; 
+      // 线性运动
+      let u = particleParams[i*2] + time * baseSpeed; 
       const v = particleParams[i*2+1];
       
       // Mobius Parametric Calculation
