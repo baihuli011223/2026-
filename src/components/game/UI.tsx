@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Play } from 'lucide-react';
+import { Volume2, VolumeX, Play, Camera, CameraOff } from 'lucide-react';
 import { audioManager } from '../../lib/audio';
 import { cn } from '../../lib/utils';
+import { GestureController } from './GestureController';
 
-interface UIProps {}
+interface UIProps {
+  currentMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+  setMode: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => void;
+}
 
-export const UI: React.FC<UIProps> = () => {
+export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
   const [isAudioStarted, setIsAudioStarted] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const [isCameraEnabled, setIsCameraEnabled] = useState(false);
 
   const handleStart = async () => {
     await audioManager.init();
@@ -63,6 +68,17 @@ export const UI: React.FC<UIProps> = () => {
 
       {/* Volume Control */}
       <div className="absolute top-8 right-8 z-40 flex items-center gap-3 bg-black/20 backdrop-blur-md p-3 rounded-full border border-white/10">
+        <button 
+          onClick={() => setIsCameraEnabled(!isCameraEnabled)} 
+          className={cn(
+            "p-2 rounded-full transition-all mr-2",
+            isCameraEnabled ? "bg-emerald-600 text-white" : "bg-white/10 text-emerald-100 hover:text-white"
+          )}
+          title="开启/关闭手势控制"
+        >
+          {isCameraEnabled ? <Camera size={20} /> : <CameraOff size={20} />}
+        </button>
+
         <button onClick={toggleMute} className="text-emerald-100 hover:text-white transition-colors">
           {isMuted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
         </button>
@@ -76,6 +92,12 @@ export const UI: React.FC<UIProps> = () => {
           className="w-24 h-1 bg-emerald-900 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-emerald-400 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:transition-all hover:[&::-webkit-slider-thumb]:scale-125"
         />
       </div>
+
+      <GestureController 
+        isEnabled={isCameraEnabled} 
+        setIsEnabled={setIsCameraEnabled}
+        onModeChange={setMode} 
+      />
     </>
   );
 };
