@@ -27,44 +27,47 @@ class AudioManager {
     // Set up Master volume
     Tone.Destination.volume.value = this.volume;
 
+    // Master Limiter to prevent clipping/distortion
+    const limiter = new Tone.Limiter(-1).toDestination();
+
     // Create BGM Synth (Smoother Piano-like)
     this.bgmSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "triangle" }, // Triangle wave is softer than square/sawtooth
+      oscillator: { type: "triangle" }, 
       envelope: { 
-        attack: 0.05,  // Slightly slower attack to avoid "clicking"
-        decay: 0.3,    // Quick initial decay
-        sustain: 0.4,  // Sustain level
-        release: 3     // Long release for "pedal" effect
+        attack: 0.02, 
+        decay: 0.3,    
+        sustain: 0.3,  
+        release: 1.2   // Reduced release to prevent overlapping muddy sound
       },
-      volume: -5
-    }).toDestination();
+      volume: -8 // Reduced volume
+    }); 
     
     // Bass/Chords Synth (Deep Piano-like)
     const bassSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "sine" }, // Sine for deep warmth
+      oscillator: { type: "sine" }, 
       envelope: { 
         attack: 0.05, 
-        decay: 0.5, 
-        sustain: 0.5, 
-        release: 4 
+        decay: 0.3, 
+        sustain: 0.4, 
+        release: 1.5 // Reduced release
       },
-      volume: -2
-    }).toDestination();
+      volume: -6 // Reduced volume
+    });
 
-    // Add a LowPass Filter to soften the sound further (simulating felt hammer)
-    const lowPass = new Tone.Filter(800, "lowpass").toDestination();
-    this.bgmSynth.connect(lowPass);
-    bassSynth.connect(lowPass);
+    // Add a LowPass Filter to soften the sound
+    const lowPass = new Tone.Filter(800, "lowpass");
+    
+    // Reverb for atmosphere (Concert Hall) - Reduced decay/wet
+    const reverb = new Tone.Reverb({ decay: 2.5, preDelay: 0.01, wet: 0.2 });
 
-    // Reverb for atmosphere (Concert Hall)
-    const reverb = new Tone.Reverb({ decay: 5, wet: 0.4 }).toDestination();
-    this.bgmSynth.connect(reverb);
-    bassSynth.connect(reverb);
-
+    // Connect Chain: Synth -> Filter -> Reverb -> Limiter -> Destination
+    this.bgmSynth.chain(lowPass, reverb, limiter);
+    bassSynth.chain(lowPass, reverb, limiter);
+    
     // Effect Synth
-    this.effectSynth = new Tone.PolySynth(Tone.Synth).toDestination();
-    this.effectSynth.volume.value = -5;
-    this.effectSynth.connect(reverb);
+    this.effectSynth = new Tone.PolySynth(Tone.Synth);
+    this.effectSynth.volume.value = -8;
+    this.effectSynth.connect(reverb); // Share reverb
 
     // We Wish You A Merry Christmas Melody
     // We wish you a merry Christmas
