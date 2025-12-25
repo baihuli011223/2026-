@@ -181,6 +181,11 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         setDetectedGesture(category);
         
         // Map gestures
+        // Add a small delay or check to prevent rapid firing? 
+        // Actually App.tsx handles the state update check now, 
+        // but we can optimize here by not calling if same gesture is detected continuously?
+        // Let's rely on App.tsx's state check for simplicity, as it's the source of truth.
+        
         if (category === 'Open_Palm') {
           onModeChangeRef.current('scatter');
         } else if (category === 'Closed_Fist') {
@@ -194,6 +199,9 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         }
       }
     } else {
+      // Don't clear immediately to avoid flickering text?
+      // setDetectedGesture(''); 
+      // Actually clearing is fine for UI feedback
       setDetectedGesture('');
     }
   };

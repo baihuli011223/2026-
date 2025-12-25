@@ -7,8 +7,13 @@ const App: React.FC = () => {
   const [mode, setMode] = useState<'tree' | 'heart' | 'scatter' | 'saturn' | 'flower'>('tree');
 
   const handleModeChange = (newMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => {
-    setMode(newMode);
-    audioManager.playEffect(newMode);
+    // 只有模式真正改变时才更新状态，避免重复渲染
+    setMode((prevMode) => {
+      if (prevMode === newMode) return prevMode;
+      return newMode;
+    });
+    // 用户要求移除切换时的音效
+    // audioManager.playEffect(newMode);
   };
 
   return (
