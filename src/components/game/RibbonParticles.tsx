@@ -70,29 +70,25 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - 四色霓虹彩带 (Green, Yellow, Red, Blue)
-  // 保持与文字一致的配色体系，形成整体感
+  // Colors - 白金色 (White Gold)
+  // 主体白色，带一点点金色的奢华感，优雅不单调
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
     const half = COUNT / 2;
     
-    // 预定义颜色盘
-    const palette = [
-        new THREE.Color('#32CD32'), // Green
-        new THREE.Color('#FFFF00'), // Yellow
-        new THREE.Color('#FF0033'), // Red
-        new THREE.Color('#1E90FF')  // Blue
-    ];
-
     for (let i = 0; i < COUNT; i++) {
-      // 沿环进行颜色分段，或者随机混合
-      // 这里采用随机混合，打造碎钻彩灯效果，更加活泼
-      const colorIndex = Math.floor(Math.random() * 4);
-      c.copy(palette[colorIndex]);
-      
-      // 增加亮度随机变化，模拟星星闪烁
-      c.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
+      if (Math.random() > 0.75) {
+          // 金色高光 (Gold Highlights)
+          c.set('#FFD700'); // Gold
+          // 降低一点饱和度，变成白金感
+          c.offsetHSL(0, -0.3, 0.1); 
+      } else {
+          // 银白主体 (Silver White Base)
+          c.set('#FFFFFF');
+          // 稍微给一点点光泽
+          c.offsetHSL(0, 0, -0.05 + Math.random() * 0.1);
+      }
       
       cols[i * 3] = c.r;
       cols[i * 3 + 1] = c.g;

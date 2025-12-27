@@ -72,27 +72,27 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 用户指定配色：绿、黄、红、蓝 (Green, Yellow, Red, Blue)
-                // 打造高饱和度的霓虹彩灯效果，拒绝暗淡
+                // 用户指定配色：蓝粉高饱和 (Blue & Pink High Saturation)
+                // 赛博朋克风格 / 霓虹甜心风格
                 const rand = Math.random();
                 
-                if (rand > 0.75) {
-                    // 鲜艳绿 (Lime Green)
-                    colorObj.set('#32CD32'); 
-                } else if (rand > 0.5) {
-                    // 明亮黄 (Yellow)
-                    colorObj.set('#FFFF00');
-                } else if (rand > 0.25) {
-                    // 喜庆红 (Red)
-                    colorObj.set('#FF0033'); 
+                if (rand > 0.5) {
+                    // 电光蓝 (Electric Blue / Cyan)
+                    // H: ~180-200, S: 100%, L: 50%
+                    colorObj.set('#00FFFF'); 
+                    // 稍微偏深蓝一点增加层次
+                    if (Math.random() > 0.5) colorObj.set('#00BFFF'); // Deep Sky Blue
                 } else {
-                    // electric 蓝 (Dodger Blue)
-                    colorObj.set('#1E90FF');
+                    // 霓虹粉 (Neon Pink / Hot Pink)
+                    // H: ~300-330, S: 100%, L: 50%
+                    colorObj.set('#FF1493'); // DeepPink
+                    // 稍微偏紫一点增加层次
+                    if (Math.random() > 0.5) colorObj.set('#FF00FF'); // Magenta
                 }
                 
-                // 增加一点亮度变化，让粒子看起来在闪烁
-                // 稍微提高 brightness 确保在黑底上清晰可见
-                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
+                // 高饱和度高亮度
+                // 增加一点闪烁感
+                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
