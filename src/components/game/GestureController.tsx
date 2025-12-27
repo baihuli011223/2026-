@@ -133,30 +133,38 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       }
     };
 
-    const predictWebcam = () => {
-      if (!videoRef.current || !recognizerRef.current || !isEnabled) return;
+  const lastPredictionTime = useRef<number>(0);
+  const predictionInterval = 200; // 限制检测频率为每200ms一次 (5fps)，解决卡顿问题
 
-      const video = videoRef.current;
-      
-      // Check if video is ready
-      if (video.readyState < 2) {
-        rafId.current = requestAnimationFrame(predictWebcam);
-        return;
-      }
+  const predictWebcam = () => {
+    if (!videoRef.current || !recognizerRef.current || !isEnabled) return;
 
+    const video = videoRef.current;
+    
+    // Check if video is ready
+    if (video.readyState < 2) {
+      rafId.current = requestAnimationFrame(predictWebcam);
+      return;
+    }
+
+    const now = Date.now();
+    // 节流控制：只有距离上次检测超过 predictionInterval 才执行
+    if (now - lastPredictionTime.current >= predictionInterval) {
       if (video.currentTime !== lastVideoTime.current) {
         lastVideoTime.current = video.currentTime;
+        lastPredictionTime.current = now;
         
         try {
-          const results = recognizerRef.current.recognizeForVideo(video, Date.now());
+          const results = recognizerRef.current.recognizeForVideo(video, now);
           processResults(results);
         } catch (e) {
           console.error("手势识别错误:", e);
         }
       }
-      
-      rafId.current = requestAnimationFrame(predictWebcam);
-    };
+    }
+    
+    rafId.current = requestAnimationFrame(predictWebcam);
+  };
 
     startCamera();
 
@@ -188,11 +196,11 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         } else if (category === 'Victory') {
           onModeChangeRef.current('heart');
         } else if (category === 'Thumb_Up') {
-          onModeChangeRef.current('saturn');
+          onModeChangeRef.current('dna');     // Thumb_Up -> DNA (Changed from Saturn)
         } else if (category === 'Pointing_Up') {
           onModeChangeRef.current('flower');
         } else if (category === 'ILoveYou') {
-          onModeChangeRef.current('dna');
+          onModeChangeRef.current('saturn');  // ILoveYou -> Saturn (Changed from DNA)
         } else if (category === 'Thumb_Down') {
           onModeChangeRef.current('sphere');
         }
@@ -258,9 +266,9 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👋</span> <span>打散</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✊</span> <span>2026</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✌️</span> <span>爱心</span></span>
-               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👍</span> <span>土星</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">🤟</span> <span>土星</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵</span></span>
-               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">🤟</span> <span>DNA</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👍</span> <span>DNA</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👎</span> <span>球体</span></span>
             </div>
           </div>
