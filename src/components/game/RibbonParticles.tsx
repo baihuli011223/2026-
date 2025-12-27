@@ -19,8 +19,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   const points = useRef<THREE.Points>(null!);
   
   // Mobius Strip Parameters
-  const RADIUS = 7;
-  const WIDTH = 3;
+  const RADIUS = 5; // 缩小半径，使其更紧凑地环绕
+  const WIDTH = 2.5; // 稍微减小宽度以保持比例
   
   // 1. Mobius Strip Logic
   const mobiusPos = useMemo(() => {
