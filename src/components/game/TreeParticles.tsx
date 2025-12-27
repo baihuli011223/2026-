@@ -19,104 +19,70 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
   
   // Generate different layouts
   const { positions: treePos, colors: treeColors } = useMemo(() => {
+    // Generate Text Particles for "2026"
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
     const pos = new Float32Array(COUNT * 3);
     const cols = new Float32Array(COUNT * 3);
     const colorObj = new THREE.Color();
 
-    for (let i = 0; i < COUNT; i++) {
-      // 90% Tree body (Layered Cones), 10% Trunk
-      const isTrunk = i > COUNT * 0.9;
-      
-      let x, y, z;
-      if (!isTrunk) {
-        // Layered Tree Logic
-        const LAYERS = 8;
-        // Normalized height 0 to 1
-        let h = Math.random(); 
-        
-        // Calculate which layer this particle belongs to
-        // Map h to discrete layers
-        // We want particles distributed across height, but organized in tiers.
-        
-        // Simple way: 
-        // y is actual height (-TREE_HEIGHT/2 to TREE_HEIGHT/2)
-        // Let's work with normalized y (0 to 1) first
-        
-        // Each layer is a frustum.
-        // Radius at bottom of layer i > Radius at top of layer i.
-        // Radius at bottom of layer i > Radius at bottom of layer i+1 (above).
-        
-        const layerHeight = 1.0 / LAYERS;
-        const currentLayer = Math.floor(h * LAYERS); // 0 to 7
-        
-        // Local height within layer (0 to 1)
-        const localH = (h * LAYERS) % 1;
-        
-        // Base radius for the whole tree at this height
-        // Linear taper: R * (1 - h)
-        const baseConeR = (1 - h) * TREE_RADIUS;
-        
-        // Add "Skirt" flare effect for each layer
-        // At the bottom of a layer (localH=0), we want it wider.
-        // At the top of a layer (localH=1), we want it narrower (to match base cone or slightly wider).
-        
-        // Flare factor: 0 at top, 1 at bottom?
-        // Let's use: (1 - localH) * FLARE_AMOUNT
-        const flare = (1 - localH) * 0.8; 
-        
-        // Final radius
-        const r = baseConeR + flare;
-        
-        // Improve distribution: concentrate particles on the surface?
-        // Or fill volume? Let's do surface + slight volume
-        // Math.sqrt(Math.random()) for uniform disk, Math.pow(Math.random(), 0.5) etc.
-        // Let's keep it somewhat volumetric but weighted to surface
-        const rFinal = r * Math.pow(Math.random(), 0.4); 
+    if (ctx) {
+        const width = 400; // High res for better sampling
+        const height = 200;
+        canvas.width = width;
+        canvas.height = height;
 
-        const theta = Math.random() * Math.PI * 2;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, width, height);
         
-        x = rFinal * Math.cos(theta);
-        y = h * TREE_HEIGHT - TREE_HEIGHT / 2; // Center vertically
-        z = rFinal * Math.sin(theta);
-        
-        // Color: Emerald Green variants
-        if (Math.random() > 0.9) {
-            // Lights/Decorations
-            const lightColors = ['#ff0000', '#ffd700', '#0000ff', '#ffffff', '#800080'];
-            colorObj.set(lightColors[Math.floor(Math.random() * lightColors.length)]);
-        } else {
-            // Green leaves
-            colorObj.setHSL(Math.random() * 0.1 + 0.35, 0.8, Math.random() * 0.4 + 0.1); // Green-ish
+        ctx.font = 'bold 120px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('2026', width / 2, height / 2);
+
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        const validPixels: {x: number, y: number}[] = [];
+
+        for (let i = 0; i < width * height; i++) {
+            // Check Alpha or Red channel
+            if (data[i * 4] > 50) { 
+                const x = (i % width) - width / 2;
+                const y = height / 2 - Math.floor(i / width);
+                validPixels.push({ x, y });
+            }
         }
-      } else {
-        // Trunk
-        const h = Math.random() * (TREE_HEIGHT * 0.2);
-        const r = Math.random() * 0.8;
-        const theta = Math.random() * Math.PI * 2;
-        
-        x = r * Math.cos(theta);
-        y = h - TREE_HEIGHT / 2 - (TREE_HEIGHT * 0.1); 
-        z = r * Math.sin(theta);
-        
-        // Brown
-        colorObj.setHSL(0.08, 0.6, 0.2 + Math.random() * 0.1);
-      }
 
-      // Add a star at top (last few particles)
-      if (i < 50) {
-        x = (Math.random() - 0.5) * 0.5;
-        y = TREE_HEIGHT / 2 + Math.random() * 0.5;
-        z = (Math.random() - 0.5) * 0.5;
-        colorObj.set('#ffd700'); // Gold
-      }
+        // Fill particles
+        for (let i = 0; i < COUNT; i++) {
+            if (validPixels.length > 0) {
+                const pixel = validPixels[Math.floor(Math.random() * validPixels.length)];
+                // Scale factor to world size
+                const scale = 0.08; 
+                
+                pos[i * 3] = pixel.x * scale + (Math.random() - 0.5) * 0.2;
+                pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.2;
+                pos[i * 3 + 2] = (Math.random() - 0.5) * 2.0; // 3D depth thickness
+                
+                // New Year Colors: Gold, Red, Silver
+                const rand = Math.random();
+                if (rand > 0.6) {
+                    colorObj.set('#FFD700'); // Gold
+                } else if (rand > 0.3) {
+                    colorObj.set('#FF0033'); // Red
+                } else {
+                    colorObj.set('#E0E0E0'); // Silver/White
+                }
+                
+                // Add some glitter variation
+                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
 
-      pos[i * 3] = x;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = z;
-      
-      cols[i * 3] = colorObj.r;
-      cols[i * 3 + 1] = colorObj.g;
-      cols[i * 3 + 2] = colorObj.b;
+                cols[i * 3] = colorObj.r;
+                cols[i * 3 + 1] = colorObj.g;
+                cols[i * 3 + 2] = colorObj.b;
+            }
+        }
     }
     return { positions: pos, colors: cols };
   }, []);

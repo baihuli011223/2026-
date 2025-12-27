@@ -39,8 +39,8 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
     return (
       <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
         <div className="text-center space-y-6 animate-in fade-in zoom-in duration-500">
-          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-yellow-400 font-serif filter drop-shadow-lg">
-            3D 粒子圣诞树
+          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-red-400 font-serif filter drop-shadow-lg">
+            3D 粒子新年 2026
           </h1>
           <p className="text-emerald-100 text-lg">戴上耳机体验最佳沉浸式效果</p>
           <button
@@ -60,10 +60,10 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
     <>
       {/* Title */}
       <div className="absolute top-8 left-8 z-40">
-        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-yellow-400 font-serif drop-shadow-md">
-          Christmas Magic
+        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-red-400 font-serif drop-shadow-md">
+          HAPPY NEW YEAR
         </h1>
-        <p className="text-xs text-emerald-200/60 mt-1 tracking-widest">Merry Christmas 2025</p>
+        <p className="text-xs text-yellow-200/60 mt-1 tracking-widest">2026</p>
       </div>
 
       {/* Volume Control */}

@@ -253,7 +253,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       {/* Helper Text - Compact & Auto-hide */}
       {isModelLoaded && !error && (
         <div className="bg-black/30 backdrop-blur-sm p-2 rounded-lg border border-white/5 text-[10px] text-gray-400 space-y-0.5 text-right opacity-50 hover:opacity-100 transition-opacity">
-          <p>🖐️ 散开 | ✊ 聚合 | ✌️ 爱心</p>
+          <p>🖐️ 散开 | ✊ 2026 | ✌️ 爱心</p>
         </div>
       )}
     </div>
