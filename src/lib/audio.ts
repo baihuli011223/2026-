@@ -30,55 +30,11 @@ class AudioManager {
     // Master Limiter to prevent clipping/distortion
     const limiter = new Tone.Limiter(-1).toDestination();
 
-    // Create BGM Synth (Smoother Piano-like)
-    this.bgmSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "triangle" }, 
-      envelope: { 
-        attack: 0.02, 
-        decay: 0.3,    
-        sustain: 0.3,  
-        release: 1.2   // Reduced release to prevent overlapping muddy sound
-      },
-      volume: -8 // Reduced volume
-    }); 
-    
-    // Bass/Chords Synth (Deep Piano-like)
-    const bassSynth = new Tone.PolySynth(Tone.Synth, {
-      oscillator: { type: "sine" }, 
-      envelope: { 
-        attack: 0.05, 
-        decay: 0.3, 
-        sustain: 0.4, 
-        release: 1.5 // Reduced release
-      },
-      volume: -6 // Reduced volume
-    });
-
-    // Add a LowPass Filter to soften the sound
-    const lowPass = new Tone.Filter(800, "lowpass");
-    
-    // Reverb for atmosphere (Concert Hall) - Reduced decay/wet
-    const reverb = new Tone.Reverb({ decay: 2.5, preDelay: 0.01, wet: 0.2 });
-
-    // Connect Chain: Synth -> Filter -> Reverb -> Limiter -> Destination
-    this.bgmSynth.chain(lowPass, reverb, limiter);
-    bassSynth.chain(lowPass, reverb, limiter);
-    
-    // Effect Synth
-    this.effectSynth = new Tone.PolySynth(Tone.Synth);
-    this.effectSynth.volume.value = -8;
-    this.effectSynth.connect(reverb); // Share reverb
-
-    // Auld Lang Syne (New Year Song) - Optimized
-    // 使用 Tone.Part 可能导致调度压力大，改用更简单的 scheduling 或优化 Part 参数
-    // 同时限制复音数和 Release 时间
-
     // 1. 设置 LookAhead (牺牲一点延迟换取稳定)
     Tone.context.lookAhead = 0.1;
 
     // 2. 更柔和的钢琴音色，减少复音
     this.bgmSynth = new Tone.PolySynth(Tone.Synth, {
-      maxPolyphony: 6, // 限制最大复音数，防止 CPU 过载
       oscillator: { type: "triangle" }, 
       envelope: { 
         attack: 0.02, 
@@ -87,11 +43,11 @@ class AudioManager {
         release: 0.8   // 进一步缩短 Release
       },
       volume: -10 
-    }); 
+    });
+    this.bgmSynth.maxPolyphony = 6; // 限制最大复音数，防止 CPU 过载
     
     // Bass Synth - Monophonic is usually enough for bass
     const bassSynth = new Tone.PolySynth(Tone.Synth, {
-      maxPolyphony: 4,
       oscillator: { type: "sine" }, 
       envelope: { 
         attack: 0.05, 
@@ -101,6 +57,7 @@ class AudioManager {
       },
       volume: -8
     });
+    bassSynth.maxPolyphony = 4;
 
     const lowPass = new Tone.Filter(800, "lowpass");
     // 减少混响开销
@@ -108,6 +65,12 @@ class AudioManager {
 
     this.bgmSynth.chain(lowPass, reverb, limiter);
     bassSynth.chain(lowPass, reverb, limiter);
+    
+    // Effect Synth
+    this.effectSynth = new Tone.PolySynth(Tone.Synth);
+    this.effectSynth.volume.value = -8;
+    this.effectSynth.connect(reverb); // Share reverb
+
     
     // Auld Lang Syne Melody - C Major
     const melody = [
