@@ -72,21 +72,32 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 喜庆红色系：主红，辅金，点缀橙
+                // 心理学配色 - 新年核心：希望之火
+                // 结合红色的热情、橙色的活力、金色的富足
+                // 使用暖色调渐变，模拟火焰与朝阳的质感
+                
+                // 基于位置或随机混合，打造更有层次的质感
                 const rand = Math.random();
-                if (rand > 0.8) {
-                    // 金色点缀 (20%)
-                    colorObj.set('#FFD700'); 
-                } else if (rand > 0.6) {
-                    // 橙红色 (20%)
-                    colorObj.set('#FF4500');
+                
+                if (rand > 0.7) {
+                    // 琥珀金 (Amber Gold) - 象征希望与财富，提亮整体
+                    colorObj.set('#FFBF00'); 
+                    // 稍微偏一点红或黄
+                    colorObj.offsetHSL((Math.random()-0.5)*0.05, 0, 0);
+                } else if (rand > 0.4) {
+                    // 活力橙 (Vibrant Orange) - 象征能量与温暖，中和红色的压迫感
+                    colorObj.set('#FF6600');
+                } else if (rand > 0.15) {
+                    // 宝石红 (Ruby Red) - 象征热情与喜庆，作为视觉重心
+                    colorObj.set('#E60026'); 
                 } else {
-                    // 纯正中国红 (60%)
-                    colorObj.set('#FF0000');
+                    // 玫瑰紫 (Rose Magenta) - 少量点缀，增加高级感和神秘感
+                    colorObj.set('#D9004C');
                 }
                 
-                // 增加一点亮度变化，避免死板
-                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
+                // 增加亮度随机扰动，模拟呼吸感
+                const flicker = (Math.random() - 0.5) * 0.15;
+                colorObj.offsetHSL(0, 0, flicker);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
