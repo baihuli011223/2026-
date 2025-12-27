@@ -10,10 +10,10 @@ interface RibbonParticlesProps {
   mode: Mode;
 }
 
-const COUNT = 600; // 彩带粒子数量
+const COUNT = 1200; // 增加粒子数量以支持双环
 const TREE_HEIGHT = 10;
-const TREE_RADIUS = 4.2; // 比树稍宽
-const TURNS = 6; // 螺旋圈数
+const TREE_RADIUS = 4.2; 
+const TURNS = 6; 
 
 export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   const points = useRef<THREE.Points>(null!);
@@ -25,29 +25,39 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   // 1. Mobius Strip Logic
   const mobiusPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
+    const half = COUNT / 2;
+    
+    // TILT ANGLES for the two rings (forming an X shape)
+    // 两个环分别倾斜，形成 X 型交叉
+    const tilt1 = 35 * (Math.PI / 180); 
+    const tilt2 = -35 * (Math.PI / 180);
+
     for (let i = 0; i < COUNT; i++) {
-      // Distribute particles along the strip
-      // u: angle around the ring [0, 2PI]
-      // v: width across the strip [-WIDTH/2, WIDTH/2]
+      // Determine which ring this particle belongs to
+      const isRing2 = i >= half;
+      const currentTilt = isRing2 ? tilt2 : tilt1;
       
-      const u = (i / COUNT) * Math.PI * 2;
+      // Normalized index for the ring
+      const ringIndex = isRing2 ? i - half : i;
+      const ringCount = half;
+
+      const u = (ringIndex / ringCount) * Math.PI * 2;
       const v = (Math.random() - 0.5) * WIDTH;
-      
-      // Mobius Strip Parametric Equations (Oriented horizontally)
-      // Standard Mobius: 
-      // x = (R + v * cos(u/2)) * cos(u)
-      // y = (R + v * cos(u/2)) * sin(u)
-      // z = v * sin(u/2)
-      
-      // We swap y and z to make it horizontal (flat on XZ plane), then tilt it?
-      // Actually let's just keep standard and rotate the whole mesh in useFrame
       
       const R = RADIUS;
       
-      // Calculate base position
-      const x = (R + v * Math.cos(u/2)) * Math.cos(u);
-      const z = (R + v * Math.cos(u/2)) * Math.sin(u);
-      const y = v * Math.sin(u/2);
+      // Base Mobius (XZ plane)
+      let x = (R + v * Math.cos(u/2)) * Math.cos(u);
+      let z = (R + v * Math.cos(u/2)) * Math.sin(u);
+      let y = v * Math.sin(u/2);
+      
+      // Apply Tilt Rotation around X axis
+      // y' = y*cos(t) - z*sin(t)
+      // z' = y*sin(t) + z*cos(t)
+      const yRot = y * Math.cos(currentTilt) - z * Math.sin(currentTilt);
+      const zRot = y * Math.sin(currentTilt) + z * Math.cos(currentTilt);
+      y = yRot;
+      z = zRot;
 
       pos[i * 3] = x;
       pos[i * 3 + 1] = y;
@@ -55,6 +65,7 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     }
     return pos;
   }, []);
+
   // Colors - Always Gold/Glowing
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
@@ -70,11 +81,15 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   }, []);
 
   // Animation Buffers
-  // Store initial "u" and "v" for each particle to re-calculate positions in animation loop
   const particleParams = useMemo(() => {
     const params = new Float32Array(COUNT * 2); // u, v
+    const half = COUNT / 2;
     for(let i=0; i<COUNT; i++) {
-        params[i*2] = (i / COUNT) * Math.PI * 2; // u
+        const isRing2 = i >= half;
+        const ringIndex = isRing2 ? i - half : i;
+        const ringCount = half;
+        
+        params[i*2] = (ringIndex / ringCount) * Math.PI * 2; // u
         params[i*2+1] = (Math.random() - 0.5) * WIDTH; // v
     }
     return params;
@@ -87,50 +102,37 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     const time = state.clock.elapsedTime;
     
     // Rotate the entire group slowly - Clockwise (Negative)
-    // 顺时针匀速旋转，无晃动
+    // 顺时针匀速旋转
     points.current.rotation.y = -time * 0.1;
-    // 固定倾斜角度，不再摆动
-    points.current.rotation.z = 0.2; 
+    // 移除固定倾斜，因为我们已经在粒子坐标里内置了 X 型交叉倾斜
+    points.current.rotation.z = 0; 
 
     // Animate particles flowing along the Mobius strip
-    // We recalculate positions based on updated 'u'
-    
-    // 匀速流动，移除律动
     const baseSpeed = 0.15; 
-
     const R = RADIUS;
+    
+    const tilt1 = 35 * (Math.PI / 180); 
+    const tilt2 = -35 * (Math.PI / 180);
+    const half = COUNT / 2;
 
     for (let i = 0; i < COUNT; i++) {
-      // 线性运动
       let u = particleParams[i*2] + time * baseSpeed; 
       const v = particleParams[i*2+1];
       
-      // Mobius Parametric Calculation
-      // x = (R + v * cos(u/2)) * cos(u)
-      // y = v * sin(u/2)
-      // z = (R + v * cos(u/2)) * sin(u)
-      // To make it lie flat on XZ plane: swap y and z components relative to standard mobius
-      // Standard Mobius (u=[0,2PI], v=[-w,w]):
-      // x = (R + v*cos(u/2)) * cos(u)
-      // y = (R + v*cos(u/2)) * sin(u)
-      // z = v*sin(u/2)
+      const isRing2 = i >= half;
+      const currentTilt = isRing2 ? tilt2 : tilt1;
       
-      // We want the ring to encircle the tree (which is along Y axis).
-      // So the main ring should be in X-Z.
-      // x = (R + v*cos(u/2)) * cos(u)
-      // z = (R + v*cos(u/2)) * sin(u)
-      // y = v*sin(u/2)
+      // Mobius Parametric Calculation (XZ plane base)
+      let x = (R + v * Math.cos(u/2)) * Math.cos(u);
+      let z = (R + v * Math.cos(u/2)) * Math.sin(u);
+      let y = v * Math.sin(u/2);
       
-      const x = (R + v * Math.cos(u/2)) * Math.cos(u);
-      const z = (R + v * Math.cos(u/2)) * Math.sin(u);
-      const y = v * Math.sin(u/2);
-      
-      // Add falling effect? 
-      // User asked for "infinite Mobius loop" + "stars falling"
-      // Maybe add a slight offset in Y that loops?
-      // Actually, flowing ALONG the Mobius strip IS the infinite loop effect.
-      // Let's add some "sparkle" jitter
-      
+      // Apply Tilt Rotation around X axis
+      const yRot = y * Math.cos(currentTilt) - z * Math.sin(currentTilt);
+      const zRot = y * Math.sin(currentTilt) + z * Math.cos(currentTilt);
+      y = yRot;
+      z = zRot;
+
       currentPos[i * 3] = x;
       currentPos[i * 3 + 1] = y;
       currentPos[i * 3 + 2] = z;
