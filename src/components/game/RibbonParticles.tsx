@@ -70,36 +70,21 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - 心理学配色：幻彩银 (Iridescent Silver)
-  // 象征未来的无限可能与纯洁的开始
-  // 在银白基调中融入微弱的淡紫与香槟色，增加梦幻感与高级感
+  // Colors - 纯净钻白 (Diamond White)
+  // 去掉蓝紫色相，只保留纯粹的亮度和微弱的暖色偏移，更有质感，完美衬托红金文字
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
     const half = COUNT / 2;
     
     for (let i = 0; i < COUNT; i++) {
-      const isRing2 = i >= half;
-      const ringIndex = isRing2 ? i - half : i;
-      const ringCount = half;
-      // 归一化位置 0-1
-      const ratio = ringIndex / ringCount; 
-      
-      // 基础：高亮银白
-      // 变化：根据位置泛出不同的光泽
-      
-      // H: 0.6(Blue) -> 0.75(Purple) -> 0.1(Warm Gold) 循环
-      // S: 极低饱和度 (0.1 - 0.2)，保持银色质感
-      // L: 高亮度 (0.8 - 0.95)
-      
-      const hue = 0.6 + Math.sin(ratio * Math.PI * 2) * 0.2; // 在蓝紫之间浮动
-      
-      if (Math.random() > 0.7) {
-         // 香槟金光泽点缀 (Warmth)
-         c.setHSL(0.1, 0.3, 0.9);
+      if (Math.random() > 0.8) {
+         // 闪烁的高光点 (Sparkles)
+         c.setHSL(0, 0, 1.0); // Pure White
       } else {
-         // 冷调银白/淡蓝紫 (Cool Elegance)
-         c.setHSL(hue, 0.15, 0.85 + Math.random() * 0.15);
+         // 柔和的银色基底 (Soft Silver)
+         // 稍微带一点点暖色(hue=0.1)，避免死白，更有温度
+         c.setHSL(0.1, 0.1, 0.7 + Math.random() * 0.2); 
       }
       
       cols[i * 3] = c.r;

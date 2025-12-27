@@ -72,36 +72,30 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 心理学配色 - 新年核心：希望之火
-                // 结合红色的热情、橙色的活力、金色的富足
-                // 使用暖色调渐变，模拟火焰与朝阳的质感
-                
-                // 基于位置或随机混合，打造更有层次的质感
+                // 经典流光红金配色 (Classic Red & Gold)
+                // 回归纯粹的喜庆感：正红 + 璀璨金
                 const rand = Math.random();
                 
-                if (rand > 0.7) {
-                    // 琥珀金 (Amber Gold) - 象征希望与财富，提亮整体
-                    colorObj.set('#FFBF00'); 
-                    // 稍微偏一点红或黄
-                    colorObj.offsetHSL((Math.random()-0.5)*0.05, 0, 0);
-                } else if (rand > 0.4) {
-                    // 活力橙 (Vibrant Orange) - 象征能量与温暖，中和红色的压迫感
-                    colorObj.set('#FF6600');
-                } else if (rand > 0.15) {
-                    // 宝石红 (Ruby Red) - 象征热情与喜庆，作为视觉重心
-                    colorObj.set('#E60026'); 
+                if (rand > 0.65) {
+                    // 35% 金色奢华质感 (增加金色比例，更显贵气)
+                    if (Math.random() > 0.4) {
+                        colorObj.set('#FFD700'); // 纯金 (Gold)
+                    } else {
+                        colorObj.set('#FFFACD'); // 柠檬绸色 (LemonChiffon) - 作为高光
+                    }
+                    // 增加金属光泽抖动，让金色更闪亮
+                    colorObj.offsetHSL(0, 0, Math.random() * 0.2); 
                 } else {
-                    // 玫瑰紫 (Rose Magenta) - 少量点缀，增加高级感和神秘感
-                    colorObj.set('#D9004C');
+                    // 65% 红色主体质感
+                    // 放弃复杂的洋红/紫色，只用最正的中国红
+                    // 通过亮度变化构建体积感，而不是色相变化
+                    
+                    // H: 0 (Red) 
+                    // S: 1.0 (Full Saturation)
+                    // L: 0.4 - 0.6 (深红到亮红)
+                    const lightness = 0.4 + Math.random() * 0.25;
+                    colorObj.setHSL(0.0, 1.0, lightness); 
                 }
-                
-                // 增加亮度随机扰动，模拟呼吸感
-                const flicker = (Math.random() - 0.5) * 0.15;
-                colorObj.offsetHSL(0, 0, flicker);
-
-                cols[i * 3] = colorObj.r;
-                cols[i * 3 + 1] = colorObj.g;
-                cols[i * 3 + 2] = colorObj.b;
             }
         }
     }
