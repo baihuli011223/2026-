@@ -101,9 +101,8 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         setError('');
         const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { 
-            facingMode: 'user',
-            width: { ideal: 640 },
-            height: { ideal: 480 }
+            facingMode: 'user'
+            // 移除硬编码的分辨率限制，提高手机兼容性
           } 
         });
         
