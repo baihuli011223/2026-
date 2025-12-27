@@ -180,12 +180,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       if (score > 0.6) {
         setDetectedGesture(category);
         
-        // Map gestures
-        // Add a small delay or check to prevent rapid firing? 
-        // Actually App.tsx handles the state update check now, 
-        // but we can optimize here by not calling if same gesture is detected continuously?
-        // Let's rely on App.tsx's state check for simplicity, as it's the source of truth.
-        
+        // Map gestures to modes
         if (category === 'Open_Palm') {
           onModeChangeRef.current('scatter');
         } else if (category === 'Closed_Fist') {
@@ -253,7 +248,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       {/* Helper Text - Compact & Auto-hide */}
       {isModelLoaded && !error && (
         <div className="bg-black/30 backdrop-blur-sm p-2 rounded-lg border border-white/5 text-[10px] text-gray-400 space-y-0.5 text-right opacity-50 hover:opacity-100 transition-opacity">
-          <p>👋 ✊ ✌️ 任意手势切换配色</p>
+          <p>👋 打散 | ✊ 2026 | ✌️ 爱心 | 👍 土星 | ☝️ 花朵</p>
         </div>
       )}
     </div>

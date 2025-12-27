@@ -8,14 +8,13 @@ type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
 
 interface TreeParticlesProps {
   mode: Mode;
-  themeIndex?: number;
 }
 
 const COUNT = 3000;
 const TREE_HEIGHT = 10;
 const TREE_RADIUS = 4;
 
-export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, themeIndex = 0 }) => {
+export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
   const points = useRef<THREE.Points>(null!);
   
   // Generate different layouts
@@ -73,50 +72,17 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, themeIndex =
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // Color Logic based on Theme
+                // Color Logic based on Theme - Defaulting to Monet Random for consistency
                 const rand = Math.random();
 
-                if (themeIndex === 0) {
-                    // Theme 0: 莫奈无规律组合 (Monet Random)
-                    const palette = ['#93A8D6', '#E6A8D7', '#F5E6CA', '#4DA98E'];
-                    colorObj.set(palette[Math.floor(rand * palette.length)]);
-                    
-                    // Impressionist noise
-                    if (Math.random() > 0.85) colorObj.offsetHSL(0, 0, 0.15);
-                    else if (Math.random() < 0.15) colorObj.offsetHSL(0, 0, -0.1);
-                    colorObj.offsetHSL((Math.random() - 0.5) * 0.06, 0, 0);
-
-                } else if (themeIndex === 1) {
-                    // Theme 1: 赛博霓虹 (Cyber Neon - Blue/Pink/Gold)
-                    if (rand > 0.66) {
-                        colorObj.set('#00FFFF'); // Cyan
-                        if (Math.random() > 0.5) colorObj.set('#00BFFF'); 
-                    } else if (rand > 0.33) {
-                        colorObj.set('#FF1493'); // Pink
-                        if (Math.random() > 0.5) colorObj.set('#FF00FF'); 
-                    } else {
-                        colorObj.set('#FFFACD'); // Pale Gold
-                        colorObj.offsetHSL(0, 0.2, -0.05); 
-                    }
-                    colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
-
-                } else if (themeIndex === 2) {
-                    // Theme 2: 经典红金 (Classic Red & Gold)
-                    if (rand > 0.65) {
-                        if (Math.random() > 0.4) colorObj.set('#FFD700'); // Gold
-                        else colorObj.set('#FFFACD'); 
-                        colorObj.offsetHSL(0, 0, Math.random() * 0.2); 
-                    } else {
-                        const lightness = 0.4 + Math.random() * 0.25;
-                        colorObj.setHSL(0.0, 1.0, lightness); // Red
-                    }
-
-                } else {
-                    // Theme 3: 缤纷彩灯 (Rainbow/Festive)
-                    const palette = ['#32CD32', '#FFFF00', '#FF0033', '#1E90FF'];
-                    colorObj.copy(new THREE.Color(palette[Math.floor(rand * 4)]));
-                    colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
-                }
+                // Monet Random (Default)
+                const palette = ['#93A8D6', '#E6A8D7', '#F5E6CA', '#4DA98E'];
+                colorObj.set(palette[Math.floor(rand * palette.length)]);
+                
+                // Impressionist noise
+                if (Math.random() > 0.85) colorObj.offsetHSL(0, 0, 0.15);
+                else if (Math.random() < 0.15) colorObj.offsetHSL(0, 0, -0.1);
+                colorObj.offsetHSL((Math.random() - 0.5) * 0.06, 0, 0);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
@@ -125,8 +91,7 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, themeIndex =
         }
     }
     return { positions: pos, colors: cols };
-  }, [themeIndex]); // Depend on themeIndex to regenerate colors
-
+  }, []);
 
   const heartPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
