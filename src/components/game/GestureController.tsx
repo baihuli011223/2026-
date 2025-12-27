@@ -52,7 +52,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
             delegate: "GPU"
           },
           runningMode: "VIDEO",
-          numHands: 1,
+          numHands: 2, // 启用双手检测
           minHandDetectionConfidence: 0.5,
           minHandPresenceConfidence: 0.5,
           minTrackingConfidence: 0.5
@@ -181,13 +181,39 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
 
   const processResults = (results: GestureRecognizerResult) => {
     if (results.gestures.length > 0) {
-      const category = results.gestures[0][0].categoryName;
-      const score = results.gestures[0][0].score;
+      // 优先检测双手组合手势
+      if (results.gestures.length === 2) {
+        const gesture1 = results.gestures[0][0].categoryName;
+        const gesture2 = results.gestures[1][0].categoryName;
+        const score1 = results.gestures[0][0].score;
+        const score2 = results.gestures[1][0].score;
+
+        // 双手指天 -> DNA
+        if (score1 > 0.6 && score2 > 0.6 && 
+            gesture1 === 'Pointing_Up' && gesture2 === 'Pointing_Up') {
+          setDetectedGesture('Dual_Point');
+          const { onModeChange } = propsRef.current;
+          onModeChange('dna');
+          return; // 优先处理双手，不再处理单手
+        }
+      }
+
+      // 单手逻辑 (或者双手但不满足特定组合时，取置信度最高的手势)
+      // 找出置信度最高的手势
+      let bestGesture = results.gestures[0][0];
+      for (let i = 1; i < results.gestures.length; i++) {
+        if (results.gestures[i][0].score > bestGesture.score) {
+          bestGesture = results.gestures[i][0];
+        }
+      }
+
+      const category = bestGesture.categoryName;
+      const score = bestGesture.score;
 
       if (score > 0.6) {
         setDetectedGesture(category);
         
-        const { onModeChange, currentMode } = propsRef.current;
+        const { onModeChange } = propsRef.current;
 
         // Map gestures to modes
         if (category === 'Open_Palm') {
@@ -197,12 +223,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         } else if (category === 'Victory') {
           onModeChange('heart');
         } else if (category === 'Pointing_Up') {
-          // Toggle between Flower and DNA
-          if (currentMode === 'flower') {
-             onModeChange('dna');
-          } else {
-             onModeChange('flower');
-          }
+          onModeChange('flower'); // 恢复为只触发花朵
         } else if (category === 'ILoveYou') {
           onModeChange('saturn');
         } else if (category === 'Thumb_Down') {
@@ -272,7 +293,8 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✊</span> <span>2026</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✌️</span> <span>爱心</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">🤟</span> <span>土星</span></span>
-               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵/DNA</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️☝️</span> <span>DNA</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👎</span> <span>球体</span></span>
             </div>
           </div>
