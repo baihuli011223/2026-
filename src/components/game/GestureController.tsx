@@ -249,21 +249,20 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         </div>
       </div>
 
-      {/* Helper Text - Fixed Bottom Left Panel */}
+      {/* Helper Text - Minimalist & Compact */}
       {isModelLoaded && !error && (
-        <div className="fixed bottom-8 left-8 z-50 bg-black/40 backdrop-blur-md p-4 rounded-xl border border-white/10 text-xs text-emerald-100/90 shadow-2xl transition-all duration-500 hover:bg-black/60">
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold text-sm text-emerald-400 mb-1 border-b border-white/10 pb-1">手势控制指南</h3>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-               <span className="flex items-center gap-2"><span className="text-lg">👋</span> 张开手掌: <span className="text-gray-300">粒子打散</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">✊</span> 握紧拳头: <span className="text-gray-300">2026文字</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">✌️</span> 胜利手势: <span className="text-gray-300">爱心形状</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">👍</span> 竖大拇指: <span className="text-gray-300">土星环绕</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">☝️</span> 食指指天: <span className="text-gray-300">盛开花朵</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">🤟</span> 爱你手势: <span className="text-gray-300">DNA螺旋</span></span>
-               <span className="flex items-center gap-2"><span className="text-lg">👎</span> 拇指向下: <span className="text-gray-300">黄金球体</span></span>
+        <div className="fixed bottom-4 left-4 z-50 text-emerald-100/70 transition-opacity duration-500 select-none pointer-events-none origin-bottom-left scale-[0.6] sm:scale-100">
+          <div className="flex flex-col gap-1">
+            <h3 className="font-bold text-xs text-emerald-500/50 mb-0.5 uppercase tracking-widest hidden sm:block">Gesture Guide</h3>
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] sm:text-[11px] font-mono">
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👋</span> <span>打散</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✊</span> <span>2026</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✌️</span> <span>爱心</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👍</span> <span>土星</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">🤟</span> <span>DNA</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👎</span> <span>球体</span></span>
             </div>
-            <p className="text-[10px] text-gray-500 mt-2 italic text-center">请保持手部在摄像头画面中央</p>
           </div>
         </div>
       )}
