@@ -8,9 +8,10 @@ import { Snow } from './Snow';
 
 interface SceneProps {
   mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+  themeIndex: number;
 }
 
-export const Scene: React.FC<SceneProps> = ({ mode }) => {
+export const Scene: React.FC<SceneProps> = ({ mode, themeIndex }) => {
   return (
     <Canvas camera={{ position: [0, 0, 15], fov: 45 }}>
       <color attach="background" args={['#000500']} />
@@ -23,8 +24,8 @@ export const Scene: React.FC<SceneProps> = ({ mode }) => {
       <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       
       {/* Particles */}
-      <TreeParticles mode={mode} />
-      <RibbonParticles mode={mode} />
+      <TreeParticles mode={mode} themeIndex={themeIndex} />
+      <RibbonParticles mode={mode} themeIndex={themeIndex} />
       <Snow />
 
       {/* Post Processing */}

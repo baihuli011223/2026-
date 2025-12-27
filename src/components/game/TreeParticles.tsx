@@ -8,13 +8,14 @@ type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
 
 interface TreeParticlesProps {
   mode: Mode;
+  themeIndex?: number;
 }
 
 const COUNT = 3000;
 const TREE_HEIGHT = 10;
 const TREE_RADIUS = 4;
 
-export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
+export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode, themeIndex = 0 }) => {
   const points = useRef<THREE.Points>(null!);
   
   // Generate different layouts
@@ -72,36 +73,50 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 莫奈无规律组合 (Monet Random Impressionism)
-                // 灵感来源：睡莲池中的光影斑驳
-                // 特点：放弃线性渐变，采用随机色块混搭，更像点彩画派
-                
-                // 定义莫奈色盘
-                const palette = [
-                    '#93A8D6', // 莫奈紫 (Lavender / Periwinkle)
-                    '#E6A8D7', // 柔雾粉 (Dusty Pink)
-                    '#F5E6CA', // 印象金 (Pale Gold)
-                    '#4DA98E'  // 睡莲绿 (Water Lily Green / Teal)
-                ];
+                // Color Logic based on Theme
+                const rand = Math.random();
 
-                // 随机选择一个基底色
-                const colorHex = palette[Math.floor(Math.random() * palette.length)];
-                colorObj.set(colorHex);
+                if (themeIndex === 0) {
+                    // Theme 0: 莫奈无规律组合 (Monet Random)
+                    const palette = ['#93A8D6', '#E6A8D7', '#F5E6CA', '#4DA98E'];
+                    colorObj.set(palette[Math.floor(rand * palette.length)]);
+                    
+                    // Impressionist noise
+                    if (Math.random() > 0.85) colorObj.offsetHSL(0, 0, 0.15);
+                    else if (Math.random() < 0.15) colorObj.offsetHSL(0, 0, -0.1);
+                    colorObj.offsetHSL((Math.random() - 0.5) * 0.06, 0, 0);
 
-                // 印象派笔触：随机扰动 (Impressionist Noise)
-                // 模拟油画颜料的混合不均匀感
-                
-                // 1. 亮度随机闪烁 (光斑)
-                const noise = Math.random();
-                if (noise > 0.85) {
-                    colorObj.offsetHSL(0, 0, 0.15); // 高光
-                } else if (noise < 0.15) {
-                    colorObj.offsetHSL(0, 0, -0.1); // 阴影
+                } else if (themeIndex === 1) {
+                    // Theme 1: 赛博霓虹 (Cyber Neon - Blue/Pink/Gold)
+                    if (rand > 0.66) {
+                        colorObj.set('#00FFFF'); // Cyan
+                        if (Math.random() > 0.5) colorObj.set('#00BFFF'); 
+                    } else if (rand > 0.33) {
+                        colorObj.set('#FF1493'); // Pink
+                        if (Math.random() > 0.5) colorObj.set('#FF00FF'); 
+                    } else {
+                        colorObj.set('#FFFACD'); // Pale Gold
+                        colorObj.offsetHSL(0, 0.2, -0.05); 
+                    }
+                    colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
+
+                } else if (themeIndex === 2) {
+                    // Theme 2: 经典红金 (Classic Red & Gold)
+                    if (rand > 0.65) {
+                        if (Math.random() > 0.4) colorObj.set('#FFD700'); // Gold
+                        else colorObj.set('#FFFACD'); 
+                        colorObj.offsetHSL(0, 0, Math.random() * 0.2); 
+                    } else {
+                        const lightness = 0.4 + Math.random() * 0.25;
+                        colorObj.setHSL(0.0, 1.0, lightness); // Red
+                    }
+
+                } else {
+                    // Theme 3: 缤纷彩灯 (Rainbow/Festive)
+                    const palette = ['#32CD32', '#FFFF00', '#FF0033', '#1E90FF'];
+                    colorObj.copy(new THREE.Color(palette[Math.floor(rand * 4)]));
+                    colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
                 }
-                
-                // 2. 色相微扰 (色彩丰富度)
-                // 让同一种颜色也有冷暖变化
-                colorObj.offsetHSL((Math.random() - 0.5) * 0.06, 0, 0);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
@@ -110,7 +125,8 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
         }
     }
     return { positions: pos, colors: cols };
-  }, []);
+  }, [themeIndex]); // Depend on themeIndex to regenerate colors
+
 
   const heartPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);

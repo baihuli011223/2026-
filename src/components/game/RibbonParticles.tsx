@@ -8,6 +8,7 @@ type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
 
 interface RibbonParticlesProps {
   mode: Mode;
+  themeIndex?: number;
 }
 
 const COUNT = 1200; // 增加粒子数量以支持双环
@@ -15,7 +16,7 @@ const TREE_HEIGHT = 10;
 const TREE_RADIUS = 4.2; 
 const TURNS = 6; 
 
-export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
+export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode, themeIndex = 0 }) => {
   const points = useRef<THREE.Points>(null!);
   
   // Mobius Strip Parameters
