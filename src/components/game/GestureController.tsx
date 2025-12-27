@@ -5,11 +5,12 @@ import { cn } from '../../lib/utils';
 
 interface GestureControllerProps {
   onModeChange: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere') => void;
+  currentMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere';
   isEnabled: boolean;
   setIsEnabled: (enabled: boolean) => void;
 }
 
-export const GestureController: React.FC<GestureControllerProps> = ({ onModeChange, isEnabled, setIsEnabled }) => {
+export const GestureController: React.FC<GestureControllerProps> = ({ onModeChange, currentMode, isEnabled, setIsEnabled }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isModelLoading, setIsModelLoading] = useState(false);
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -22,11 +23,11 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
   const lastPredictionTime = useRef<number>(0);
   const predictionInterval = 200; // 限制检测频率为每200ms一次 (5fps)，解决卡顿问题
   
-  // Use ref to keep track of the latest callback without triggering effect re-run
-  const onModeChangeRef = useRef(onModeChange);
-  useEffect(() => {
-    onModeChangeRef.current = onModeChange;
-  }, [onModeChange]);
+    // Use ref to keep track of the latest callback and currentMode without triggering effect re-run
+    const propsRef = useRef({ onModeChange, currentMode });
+    useEffect(() => {
+      propsRef.current = { onModeChange, currentMode };
+    }, [onModeChange, currentMode]);
 
   // Load Model
   useEffect(() => {
@@ -183,25 +184,31 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       const category = results.gestures[0][0].categoryName;
       const score = results.gestures[0][0].score;
 
-        if (score > 0.6) {
+      if (score > 0.6) {
         setDetectedGesture(category);
         
+        const { onModeChange, currentMode } = propsRef.current;
+
         // Map gestures to modes
         if (category === 'Open_Palm') {
-          onModeChangeRef.current('scatter');
+          onModeChange('scatter');
         } else if (category === 'Closed_Fist') {
-          onModeChangeRef.current('tree');
+          onModeChange('tree');
         } else if (category === 'Victory') {
-          onModeChangeRef.current('heart');
-        } else if (category === 'Thumb_Up') {
-          onModeChangeRef.current('dna');     // Thumb_Up -> DNA (Changed from Saturn)
+          onModeChange('heart');
         } else if (category === 'Pointing_Up') {
-          onModeChangeRef.current('flower');
+          // Toggle between Flower and DNA
+          if (currentMode === 'flower') {
+             onModeChange('dna');
+          } else {
+             onModeChange('flower');
+          }
         } else if (category === 'ILoveYou') {
-          onModeChangeRef.current('saturn');  // ILoveYou -> Saturn (Changed from DNA)
+          onModeChange('saturn');
         } else if (category === 'Thumb_Down') {
-          onModeChangeRef.current('sphere');
+          onModeChange('sphere');
         }
+        // Removed Thumb_Up completely
       }
     } else {
       // Don't clear immediately to avoid flickering text?
@@ -265,8 +272,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✊</span> <span>2026</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">✌️</span> <span>爱心</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">🤟</span> <span>土星</span></span>
-               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵</span></span>
-               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👍</span> <span>DNA</span></span>
+               <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">☝️</span> <span>花朵/DNA</span></span>
                <span className="flex items-center gap-1.5 whitespace-nowrap"><span className="text-sm grayscale opacity-70">👎</span> <span>球体</span></span>
             </div>
           </div>

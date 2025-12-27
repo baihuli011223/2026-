@@ -97,6 +97,7 @@ export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {
         isEnabled={isCameraEnabled} 
         setIsEnabled={setIsCameraEnabled}
         onModeChange={setMode} 
+        currentMode={currentMode}
       />
     </>
   );
