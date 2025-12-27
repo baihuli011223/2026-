@@ -72,13 +72,21 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 五颜六色：全光谱随机颜色
-                // 使用 HSL 生成高饱和度、中等亮度的颜色，避免过亮
-                const hue = Math.random();
-                const saturation = 0.8 + Math.random() * 0.2; // 80-100% 饱和度
-                const lightness = 0.4 + Math.random() * 0.2;  // 40-60% 亮度 (避免太亮)
+                // 喜庆红色系：主红，辅金，点缀橙
+                const rand = Math.random();
+                if (rand > 0.8) {
+                    // 金色点缀 (20%)
+                    colorObj.set('#FFD700'); 
+                } else if (rand > 0.6) {
+                    // 橙红色 (20%)
+                    colorObj.set('#FF4500');
+                } else {
+                    // 纯正中国红 (60%)
+                    colorObj.set('#FF0000');
+                }
                 
-                colorObj.setHSL(hue, saturation, lightness);
+                // 增加一点亮度变化，避免死板
+                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;

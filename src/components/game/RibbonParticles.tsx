@@ -70,21 +70,15 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - Rainbow Gradient along the strip
+  // Colors - Silver/White for Mobius Strip
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
-    const half = COUNT / 2;
     
     for (let i = 0; i < COUNT; i++) {
-      // Determine relative position along the ring [0, 1]
-      const isRing2 = i >= half;
-      const ringIndex = isRing2 ? i - half : i;
-      const ringCount = half;
-      const ratio = ringIndex / ringCount;
-
-      // Rainbow loop
-      c.setHSL(ratio, 0.8, 0.5); // Hue cycles 0->1, Sat 0.8, Light 0.5 (Colorful but not blinding)
+      // 银白色：高亮度，低饱和度的蓝/白
+      const brightness = 0.8 + Math.random() * 0.2; // 0.8 - 1.0 亮度
+      c.setHSL(0.6, 0.05, brightness); // 极淡的冷色调，接近纯白
       
       cols[i * 3] = c.r;
       cols[i * 3 + 1] = c.g;
