@@ -20,11 +20,11 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   
   // Mobius Strip Parameters
   // 调整说明：
-  // 1. 缩小半径 (6.5 -> 4.8)，紧贴缩小的文字
-  // 2. 宽度 (1.0 -> 0.8)
-  // 3. 倾角 (35 -> 30)
-  const RADIUS = 4.8; 
-  const WIDTH = 0.8;
+  // 1. 再次缩小半径 (4.8 -> 3.6)，配合缩小的文字，营造"大三圈"的包裹感
+  // 2. 宽度变窄 (0.8 -> 0.5)，更精致
+  // 3. 倾角维持 30度
+  const RADIUS = 3.6; 
+  const WIDTH = 0.5;
   
   // 1. Mobius Strip Logic
   const mobiusPos = useMemo(() => {
