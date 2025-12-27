@@ -70,24 +70,24 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - 白金色 (White Gold)
-  // 主体白色，带一点点金色的奢华感，优雅不单调
+  // Colors - 纯粹银白色 (Pure Silver White)
+  // 去除所有金色成分，打造冷艳、纯净的银色质感
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
     const half = COUNT / 2;
     
     for (let i = 0; i < COUNT; i++) {
-      if (Math.random() > 0.75) {
-          // 金色高光 (Gold Highlights)
-          c.set('#FFD700'); // Gold
-          // 降低一点饱和度，变成白金感
-          c.offsetHSL(0, -0.3, 0.1); 
-      } else {
-          // 银白主体 (Silver White Base)
+      const r = Math.random();
+      
+      if (r > 0.8) {
+          // 高光：极致纯白，模拟钻石反光
           c.set('#FFFFFF');
-          // 稍微给一点点光泽
-          c.offsetHSL(0, 0, -0.05 + Math.random() * 0.1);
+          // 稍微增加一点过曝的亮度感 (通过材质emissive体现，但这里改颜色最白)
+      } else {
+          // 主体：银灰色/金属白
+          // H: 220 (微蓝冷调), S: 5% (极低饱和), L: 85-95% (高明度)
+          c.setHSL(0.61, 0.05, 0.85 + Math.random() * 0.1);
       }
       
       cols[i * 3] = c.r;
