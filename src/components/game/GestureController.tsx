@@ -19,6 +19,8 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
   const rafId = useRef<number | null>(null);
   const lastVideoTime = useRef<number>(-1);
   const streamRef = useRef<MediaStream | null>(null);
+  const lastPredictionTime = useRef<number>(0);
+  const predictionInterval = 200; // 限制检测频率为每200ms一次 (5fps)，解决卡顿问题
   
   // Use ref to keep track of the latest callback without triggering effect re-run
   const onModeChangeRef = useRef(onModeChange);
@@ -133,10 +135,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       }
     };
 
-  const lastPredictionTime = useRef<number>(0);
-  const predictionInterval = 200; // 限制检测频率为每200ms一次 (5fps)，解决卡顿问题
-
-  const predictWebcam = () => {
+    const predictWebcam = () => {
     if (!videoRef.current || !recognizerRef.current || !isEnabled) return;
 
     const video = videoRef.current;
