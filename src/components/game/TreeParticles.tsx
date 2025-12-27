@@ -72,64 +72,36 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 莫奈渐变色 (Monet Impressionist Gradient)
-                // 灵感来源：莫奈《睡莲》与《日出·印象》
-                // 特点：低饱和高明度，色相丰富且柔和过渡
-                // 垂直渐变：上部紫罗兰/淡蓝 -> 中部柔粉/淡金 -> 下部湖绿/深蓝
+                // 莫奈无规律组合 (Monet Random Impressionism)
+                // 灵感来源：睡莲池中的光影斑驳
+                // 特点：放弃线性渐变，采用随机色块混搭，更像点彩画派
                 
-                // 1. 计算归一化高度 t (0.0 ~ 1.0)
-                // y 范围大约在 -80 到 +80 之间 (根据之前的布局)
-                // 我们放宽一点范围 -100 到 +100 以确保渐变平滑
-                const t = Math.max(0, Math.min(1, (pixel.y + 100) / 200));
+                // 定义莫奈色盘
+                const palette = [
+                    '#93A8D6', // 莫奈紫 (Lavender / Periwinkle)
+                    '#E6A8D7', // 柔雾粉 (Dusty Pink)
+                    '#F5E6CA', // 印象金 (Pale Gold)
+                    '#4DA98E'  // 睡莲绿 (Water Lily Green / Teal)
+                ];
 
-                // 2. 定义莫奈色盘 (从下到上 or 从上到下)
-                // 这里 t=1 是 Top (+y), t=0 是 Bottom (-y)
-                
-                // Top: 莫奈紫 (Lavender / Periwinkle)
-                const c1 = new THREE.Color('#93A8D6'); 
-                // Mid-Top: 柔雾粉 (Dusty Pink)
-                const c2 = new THREE.Color('#E6A8D7');
-                // Mid-Bottom: 印象金 (Pale Gold)
-                const c3 = new THREE.Color('#F5E6CA');
-                // Bottom: 睡莲绿 (Water Lily Green / Teal)
-                const c4 = new THREE.Color('#4DA98E');
+                // 随机选择一个基底色
+                const colorHex = palette[Math.floor(Math.random() * palette.length)];
+                colorObj.set(colorHex);
 
-                // 3. 多段插值
-                // 0.0 --(c4)-- 0.33 --(c3)-- 0.66 --(c2)-- 1.0 --(c1)
+                // 印象派笔触：随机扰动 (Impressionist Noise)
+                // 模拟油画颜料的混合不均匀感
                 
-                if (t > 0.66) {
-                    // Top Section: Pink -> Purple
-                    const localT = (t - 0.66) / 0.34;
-                    colorObj.copy(c2).lerp(c1, localT);
-                } else if (t > 0.33) {
-                    // Mid Section: Gold -> Pink
-                    const localT = (t - 0.33) / 0.33;
-                    colorObj.copy(c3).lerp(c2, localT);
-                } else {
-                    // Bottom Section: Green -> Gold
-                    const localT = t / 0.33;
-                    colorObj.copy(c4).lerp(c3, localT);
-                }
-
-                // 4. 印象派笔触：随机扰动 (Impressionist Noise)
-                // 莫奈的画不是纯色块，而是无数色点的交织
-                // 随机偏移色相和亮度，增加油画质感
-                
-                // H: 微调色相，让颜色不单调
-                // S: 保持中低饱和度，但偶尔有高光
-                // L: 亮度随机抖动
-                
+                // 1. 亮度随机闪烁 (光斑)
                 const noise = Math.random();
-                if (noise > 0.8) {
-                    // 亮点/反光
-                    colorObj.offsetHSL(0, 0, 0.1); 
-                } else if (noise < 0.2) {
-                    // 环境阴影
-                    colorObj.offsetHSL(0, 0, -0.05);
+                if (noise > 0.85) {
+                    colorObj.offsetHSL(0, 0, 0.15); // 高光
+                } else if (noise < 0.15) {
+                    colorObj.offsetHSL(0, 0, -0.1); // 阴影
                 }
                 
-                // 色相微扰 (Painterly Hues)
-                colorObj.offsetHSL((Math.random() - 0.5) * 0.08, 0, 0);
+                // 2. 色相微扰 (色彩丰富度)
+                // 让同一种颜色也有冷暖变化
+                colorObj.offsetHSL((Math.random() - 0.5) * 0.06, 0, 0);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
