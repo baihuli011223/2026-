@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
 
-type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere';
 
 interface RibbonParticlesProps {
   mode: Mode;
@@ -80,7 +80,7 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
 
     // Calculate Target Positions
     if (mode === 'tree') {
-        const baseSpeed = 0.15; 
+        const baseSpeed = 0.15;  
         const R = RADIUS;
         const tilt1 = 25 * (Math.PI / 180); 
         const tilt2 = -25 * (Math.PI / 180);

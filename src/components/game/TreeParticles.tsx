@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { PointMaterial } from '@react-three/drei';
 import * as random from 'maath/random/dist/maath-random.esm';
 
-type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+type Mode = 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere';
 
 interface TreeParticlesProps {
   mode: Mode;
@@ -205,7 +205,51 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  const scatterPos = useMemo(() => {
+    // Generate DNA Layout (Double Helix)
+    const dnaPos = useMemo(() => {
+        const pos = new Float32Array(COUNT * 3);
+        for (let i = 0; i < COUNT; i++) {
+            // t goes from -PI*2 to PI*2 (2 full turns)
+            const t = (i / COUNT) * Math.PI * 8 - Math.PI * 4; 
+            const radius = 3;
+            const height = 1.5; // Scale for height
+
+            // Strand 1
+            if (i % 2 === 0) {
+                pos[i * 3] = radius * Math.cos(t);
+                pos[i * 3 + 1] = t * height;
+                pos[i * 3 + 2] = radius * Math.sin(t);
+            } else {
+                // Strand 2 (offset by PI)
+                pos[i * 3] = radius * Math.cos(t + Math.PI);
+                pos[i * 3 + 1] = t * height;
+                pos[i * 3 + 2] = radius * Math.sin(t + Math.PI);
+            }
+
+            // Add some noise to make it particle-like
+            pos[i * 3] += (Math.random() - 0.5) * 0.5;
+            pos[i * 3 + 1] += (Math.random() - 0.5) * 0.5;
+            pos[i * 3 + 2] += (Math.random() - 0.5) * 0.5;
+        }
+        return pos;
+    }, []);
+
+    // Generate Sphere Layout
+    const spherePos = useMemo(() => {
+        const pos = new Float32Array(COUNT * 3);
+        for (let i = 0; i < COUNT; i++) {
+            const radius = 6;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const theta = Math.sqrt(COUNT * Math.PI) * phi;
+            
+            pos[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
+            pos[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
+            pos[i * 3 + 2] = radius * Math.cos(phi);
+        }
+        return pos;
+    }, []);
+
+    const scatterPos = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
     // Random sphere
     const sphere = random.inSphere(new Float32Array(COUNT * 3), { radius: 10 });
@@ -273,6 +317,37 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
            // Petals: Purple/Pink/Magenta
            c.setHSL(0.8 + Math.random() * 0.1, 0.8, 0.6);
         }
+        cols[i*3] = c.r;
+        cols[i*3+1] = c.g;
+        cols[i*3+2] = c.b;
+      }
+      targetColorRef.current = cols;
+
+    } else if (mode === 'dna') {
+      targetPosRef.current = dnaPos;
+      // DNA Colors: Cyan & Purple
+      for(let i=0; i<COUNT; i++) {
+        // Strand differentiation
+        if (i % 2 === 0) c.set('#00ffff'); // Cyan
+        else c.set('#9932cc'); // DarkOrchid
+        
+        // Add some variation
+        c.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
+        
+        cols[i*3] = c.r;
+        cols[i*3+1] = c.g;
+        cols[i*3+2] = c.b;
+      }
+      targetColorRef.current = cols;
+
+    } else if (mode === 'sphere') {
+      targetPosRef.current = spherePos;
+      // Sphere Colors: Golden Globe
+      for(let i=0; i<COUNT; i++) {
+        c.set('#ffd700'); // Gold
+        // Sparkles
+        if (Math.random() > 0.8) c.set('#ffffff');
+        
         cols[i*3] = c.r;
         cols[i*3+1] = c.g;
         cols[i*3+2] = c.b;

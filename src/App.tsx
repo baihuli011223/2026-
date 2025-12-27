@@ -4,9 +4,9 @@ import { UI } from './components/game/UI';
 import { audioManager } from './lib/audio';
 
 const App: React.FC = () => {
-  const [mode, setMode] = useState<'tree' | 'heart' | 'scatter' | 'saturn' | 'flower'>('tree');
+  const [mode, setMode] = useState<'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere'>('tree');
 
-  const handleModeChange = (newMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => {
+  const handleModeChange = (newMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere') => {
     setMode((prevMode) => {
       if (prevMode === newMode) return prevMode;
       return newMode;

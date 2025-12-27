@@ -5,8 +5,8 @@ import { cn } from '../../lib/utils';
 import { GestureController } from './GestureController';
 
 interface UIProps {
-  currentMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
-  setMode: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => void;
+  currentMode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere';
+  setMode: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere') => void;
 }
 
 export const UI: React.FC<UIProps> = ({ currentMode, setMode }) => {

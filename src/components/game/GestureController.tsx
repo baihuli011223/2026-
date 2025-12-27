@@ -4,7 +4,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface GestureControllerProps {
-  onModeChange: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower') => void;
+  onModeChange: (mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere') => void;
   isEnabled: boolean;
   setIsEnabled: (enabled: boolean) => void;
 }
@@ -177,7 +177,7 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
       const category = results.gestures[0][0].categoryName;
       const score = results.gestures[0][0].score;
 
-      if (score > 0.6) {
+        if (score > 0.6) {
         setDetectedGesture(category);
         
         // Map gestures to modes
@@ -191,6 +191,10 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
           onModeChangeRef.current('saturn');
         } else if (category === 'Pointing_Up') {
           onModeChangeRef.current('flower');
+        } else if (category === 'ILoveYou') {
+          onModeChangeRef.current('dna');
+        } else if (category === 'Thumb_Down') {
+          onModeChangeRef.current('sphere');
         }
       }
     } else {
@@ -245,10 +249,22 @@ export const GestureController: React.FC<GestureControllerProps> = ({ onModeChan
         </div>
       </div>
 
-      {/* Helper Text - Compact & Auto-hide */}
+      {/* Helper Text - Fixed Bottom Left Panel */}
       {isModelLoaded && !error && (
-        <div className="bg-black/30 backdrop-blur-sm p-2 rounded-lg border border-white/5 text-[10px] text-gray-400 space-y-0.5 text-right opacity-50 hover:opacity-100 transition-opacity">
-          <p>👋 打散 | ✊ 2026 | ✌️ 爱心 | 👍 土星 | ☝️ 花朵</p>
+        <div className="fixed bottom-8 left-8 z-50 bg-black/40 backdrop-blur-md p-4 rounded-xl border border-white/10 text-xs text-emerald-100/90 shadow-2xl transition-all duration-500 hover:bg-black/60">
+          <div className="flex flex-col gap-2">
+            <h3 className="font-bold text-sm text-emerald-400 mb-1 border-b border-white/10 pb-1">手势控制指南</h3>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+               <span className="flex items-center gap-2"><span className="text-lg">👋</span> 张开手掌: <span className="text-gray-300">粒子打散</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">✊</span> 握紧拳头: <span className="text-gray-300">2026文字</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">✌️</span> 胜利手势: <span className="text-gray-300">爱心形状</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">👍</span> 竖大拇指: <span className="text-gray-300">土星环绕</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">☝️</span> 食指指天: <span className="text-gray-300">盛开花朵</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">🤟</span> 爱你手势: <span className="text-gray-300">DNA螺旋</span></span>
+               <span className="flex items-center gap-2"><span className="text-lg">👎</span> 拇指向下: <span className="text-gray-300">黄金球体</span></span>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-2 italic text-center">请保持手部在摄像头画面中央</p>
+          </div>
         </div>
       )}
     </div>

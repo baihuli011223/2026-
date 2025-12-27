@@ -7,7 +7,7 @@ import { RibbonParticles } from './RibbonParticles';
 import { Snow } from './Snow';
 
 interface SceneProps {
-  mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower';
+  mode: 'tree' | 'heart' | 'scatter' | 'saturn' | 'flower' | 'dna' | 'sphere';
 }
 
 export const Scene: React.FC<SceneProps> = ({ mode }) => {
