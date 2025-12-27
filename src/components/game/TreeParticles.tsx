@@ -44,9 +44,9 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
         ctx.textBaseline = 'middle';
         
         // 绘制两行文字：20 在上，26 在下
-        // 增加间距防止重叠
-        ctx.fillText('20', width / 2, height / 2 - 85);
-        ctx.fillText('26', width / 2, height / 2 + 85);
+        // 增加间距防止重叠 -> 稍微紧凑一点，配合整体缩放
+        ctx.fillText('20', width / 2, height / 2 - 70);
+        ctx.fillText('26', width / 2, height / 2 + 70);
 
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
@@ -65,12 +65,12 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
         for (let i = 0; i < COUNT; i++) {
             if (validPixels.length > 0) {
                 const pixel = validPixels[Math.floor(Math.random() * validPixels.length)];
-                // 调整缩放比例，使粒子更紧凑
-                const scale = 0.03; 
+                // 调整缩放比例，使粒子更紧凑 -> 进一步缩小，以便缩小莫比乌斯环
+                const scale = 0.022; 
                 
-                pos[i * 3] = pixel.x * scale + (Math.random() - 0.5) * 0.15; // 减少随机抖动
-                pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.15;
-                pos[i * 3 + 2] = (Math.random() - 0.5) * 1.0; // 减小厚度，让字更清晰
+                pos[i * 3] = pixel.x * scale + (Math.random() - 0.5) * 0.12; 
+                pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.12;
+                pos[i * 3 + 2] = (Math.random() - 0.5) * 0.8;
                 
                 // New Year Colors: Gold, Red, Silver
                 const rand = Math.random();

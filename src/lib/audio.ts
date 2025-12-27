@@ -138,7 +138,7 @@ class AudioManager {
     bassPart.loopEnd = "11:0";
     bassPart.start(0);
 
-    Tone.Transport.bpm.value = 100; // Slower, nostalgic tempo
+    Tone.Transport.bpm.value = 120; // 120 BPM for standard speed (1x)
 
     Tone.Transport.start();
     
