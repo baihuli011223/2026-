@@ -70,13 +70,22 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - Always Gold/Glowing
+  // Colors - Rainbow Gradient along the strip
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
+    const half = COUNT / 2;
+    
     for (let i = 0; i < COUNT; i++) {
-      // Gold/Orange gradient
-      c.setHSL(0.1 + Math.random() * 0.05, 1, 0.6 + Math.random() * 0.4);
+      // Determine relative position along the ring [0, 1]
+      const isRing2 = i >= half;
+      const ringIndex = isRing2 ? i - half : i;
+      const ringCount = half;
+      const ratio = ringIndex / ringCount;
+
+      // Rainbow loop
+      c.setHSL(ratio, 0.8, 0.5); // Hue cycles 0->1, Sat 0.8, Light 0.5 (Colorful but not blinding)
+      
       cols[i * 3] = c.r;
       cols[i * 3 + 1] = c.g;
       cols[i * 3 + 2] = c.b;
@@ -169,7 +178,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
         size={0.15} 
         sizeAttenuation={true}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={THREE.NormalBlending} // 改为 NormalBlending，展示真实颜色
+        opacity={0.8} // 降低透明度，避免抢眼
       />
     </points>
   );

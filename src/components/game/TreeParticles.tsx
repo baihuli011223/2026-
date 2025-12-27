@@ -72,18 +72,13 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // New Year Colors: Gold, Red, Silver
-                const rand = Math.random();
-                if (rand > 0.6) {
-                    colorObj.set('#FFD700'); // Gold
-                } else if (rand > 0.3) {
-                    colorObj.set('#FF0033'); // Red
-                } else {
-                    colorObj.set('#E0E0E0'); // Silver/White
-                }
+                // 五颜六色：全光谱随机颜色
+                // 使用 HSL 生成高饱和度、中等亮度的颜色，避免过亮
+                const hue = Math.random();
+                const saturation = 0.8 + Math.random() * 0.2; // 80-100% 饱和度
+                const lightness = 0.4 + Math.random() * 0.2;  // 40-60% 亮度 (避免太亮)
                 
-                // Add some glitter variation
-                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
+                colorObj.setHSL(hue, saturation, lightness);
 
                 cols[i * 3] = colorObj.r;
                 cols[i * 3 + 1] = colorObj.g;
@@ -340,7 +335,8 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
         size={0.15}
         sizeAttenuation={true}
         depthWrite={false}
-        blending={THREE.AdditiveBlending}
+        blending={THREE.NormalBlending} // 改为 NormalBlending 防止过曝变白
+        opacity={0.9} // 稍微降低透明度
       />
     </points>
   );
