@@ -72,26 +72,27 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 用户指定配色：蓝粉高饱和 (Blue & Pink High Saturation)
-                // 赛博朋克风格 / 霓虹甜心风格
+                // 用户指定配色：蓝粉高饱和 + 淡金黄
+                // 蓝粉保持赛博朋克感，加入淡金黄增添高级感
                 const rand = Math.random();
                 
-                if (rand > 0.5) {
+                if (rand > 0.66) {
                     // 电光蓝 (Electric Blue / Cyan)
-                    // H: ~180-200, S: 100%, L: 50%
                     colorObj.set('#00FFFF'); 
-                    // 稍微偏深蓝一点增加层次
-                    if (Math.random() > 0.5) colorObj.set('#00BFFF'); // Deep Sky Blue
-                } else {
+                    if (Math.random() > 0.5) colorObj.set('#00BFFF'); 
+                } else if (rand > 0.33) {
                     // 霓虹粉 (Neon Pink / Hot Pink)
-                    // H: ~300-330, S: 100%, L: 50%
-                    colorObj.set('#FF1493'); // DeepPink
-                    // 稍微偏紫一点增加层次
-                    if (Math.random() > 0.5) colorObj.set('#FF00FF'); // Magenta
+                    colorObj.set('#FF1493'); 
+                    if (Math.random() > 0.5) colorObj.set('#FF00FF'); 
+                } else {
+                    // 淡金黄 (Pale Golden Yellow) - 提亮整体视觉
+                    // 既不是土豪金，也不是柠檬黄，而是高雅的香槟金/淡金
+                    colorObj.set('#FFFACD'); // LemonChiffon (基底)
+                    // 稍微偏移向金色
+                    colorObj.offsetHSL(0, 0.2, -0.05); 
                 }
                 
-                // 高饱和度高亮度
-                // 增加一点闪烁感
+                // 统一增加闪烁感
                 colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
 
                 cols[i * 3] = colorObj.r;
