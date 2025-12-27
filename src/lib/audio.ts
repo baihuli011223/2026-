@@ -39,12 +39,12 @@ class AudioManager {
       envelope: { 
         attack: 0.02, 
         decay: 0.1,    
-        sustain: 0.3,  
-        release: 0.8   // 进一步缩短 Release
+        sustain: 0.1,  // 降低 Sustain 减少持续发声时间
+        release: 0.5   // 进一步缩短 Release
       },
       volume: -10 
     });
-    this.bgmSynth.maxPolyphony = 6; // 限制最大复音数，防止 CPU 过载
+    this.bgmSynth.maxPolyphony = 4; // 进一步严格限制复音数
     
     // Bass Synth - Monophonic is usually enough for bass
     const bassSynth = new Tone.PolySynth(Tone.Synth, {
@@ -52,16 +52,16 @@ class AudioManager {
       envelope: { 
         attack: 0.05, 
         decay: 0.2, 
-        sustain: 0.4, 
-        release: 1.0 
+        sustain: 0.3, 
+        release: 0.5 
       },
       volume: -8
     });
-    bassSynth.maxPolyphony = 4;
+    bassSynth.maxPolyphony = 2; // Bass 只需要很少的复音
 
     const lowPass = new Tone.Filter(800, "lowpass");
-    // 减少混响开销
-    const reverb = new Tone.Reverb({ decay: 2.0, preDelay: 0.01, wet: 0.15 });
+    // 减少混响开销: 缩短 decay
+    const reverb = new Tone.Reverb({ decay: 1.5, preDelay: 0.01, wet: 0.1 });
 
     this.bgmSynth.chain(lowPass, reverb, limiter);
     bassSynth.chain(lowPass, reverb, limiter);
@@ -138,7 +138,7 @@ class AudioManager {
     bassPart.loopEnd = "11:0";
     bassPart.start(0);
 
-    Tone.Transport.bpm.value = 120; // 120 BPM for standard speed (1x)
+    Tone.Transport.bpm.value = 140; // Faster tempo
 
     Tone.Transport.start();
     

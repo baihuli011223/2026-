@@ -20,11 +20,11 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   
   // Mobius Strip Parameters
   // 调整说明：
-  // 1. 再次缩小半径 (4.8 -> 3.6)，配合缩小的文字，营造"大三圈"的包裹感
-  // 2. 宽度变窄 (0.8 -> 0.5)，更精致
-  // 3. 倾角维持 30度
-  const RADIUS = 3.6; 
-  const WIDTH = 0.5;
+  // 1. 半径缩小到 3.2 (文字大约宽4，半径3.2直径6.4，留有余地)
+  // 2. 宽度 0.4
+  // 3. 倾角 25度 (稍扁平，避免遮挡太多)
+  const RADIUS = 3.2; 
+  const WIDTH = 0.4;
   
   // 1. Mobius Strip Logic
   const mobiusPos = useMemo(() => {
@@ -33,8 +33,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     
     // TILT ANGLES for the two rings (forming an X shape)
     // 两个环分别倾斜，形成 X 型交叉
-    const tilt1 = 30 * (Math.PI / 180); 
-    const tilt2 = -30 * (Math.PI / 180);
+    const tilt1 = 25 * (Math.PI / 180); 
+    const tilt2 = -25 * (Math.PI / 180);
 
     for (let i = 0; i < COUNT; i++) {
       // Determine which ring this particle belongs to
@@ -115,8 +115,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     const baseSpeed = 0.15; 
     const R = RADIUS;
     
-    const tilt1 = 30 * (Math.PI / 180); 
-    const tilt2 = -30 * (Math.PI / 180);
+    const tilt1 = 25 * (Math.PI / 180); 
+    const tilt2 = -25 * (Math.PI / 180);
     const half = COUNT / 2;
 
     for (let i = 0; i < COUNT; i++) {
