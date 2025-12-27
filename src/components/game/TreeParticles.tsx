@@ -72,30 +72,31 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.08;
                 pos[i * 3 + 2] = (Math.random() - 0.5) * 0.5;
                 
-                // 经典流光红金配色 (Classic Red & Gold)
-                // 回归纯粹的喜庆感：正红 + 璀璨金
+                // 用户指定配色：绿、黄、红、蓝 (Green, Yellow, Red, Blue)
+                // 打造高饱和度的霓虹彩灯效果，拒绝暗淡
                 const rand = Math.random();
                 
-                if (rand > 0.65) {
-                    // 35% 金色奢华质感 (增加金色比例，更显贵气)
-                    if (Math.random() > 0.4) {
-                        colorObj.set('#FFD700'); // 纯金 (Gold)
-                    } else {
-                        colorObj.set('#FFFACD'); // 柠檬绸色 (LemonChiffon) - 作为高光
-                    }
-                    // 增加金属光泽抖动，让金色更闪亮
-                    colorObj.offsetHSL(0, 0, Math.random() * 0.2); 
+                if (rand > 0.75) {
+                    // 鲜艳绿 (Lime Green)
+                    colorObj.set('#32CD32'); 
+                } else if (rand > 0.5) {
+                    // 明亮黄 (Yellow)
+                    colorObj.set('#FFFF00');
+                } else if (rand > 0.25) {
+                    // 喜庆红 (Red)
+                    colorObj.set('#FF0033'); 
                 } else {
-                    // 65% 红色主体质感
-                    // 放弃复杂的洋红/紫色，只用最正的中国红
-                    // 通过亮度变化构建体积感，而不是色相变化
-                    
-                    // H: 0 (Red) 
-                    // S: 1.0 (Full Saturation)
-                    // L: 0.4 - 0.6 (深红到亮红)
-                    const lightness = 0.4 + Math.random() * 0.25;
-                    colorObj.setHSL(0.0, 1.0, lightness); 
+                    // electric 蓝 (Dodger Blue)
+                    colorObj.set('#1E90FF');
                 }
+                
+                // 增加一点亮度变化，让粒子看起来在闪烁
+                // 稍微提高 brightness 确保在黑底上清晰可见
+                colorObj.offsetHSL(0, 0, (Math.random() - 0.5) * 0.1);
+
+                cols[i * 3] = colorObj.r;
+                cols[i * 3 + 1] = colorObj.g;
+                cols[i * 3 + 2] = colorObj.b;
             }
         }
     }

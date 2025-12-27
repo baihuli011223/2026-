@@ -70,22 +70,29 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     return pos;
   }, []);
 
-  // Colors - 纯净钻白 (Diamond White)
-  // 去掉蓝紫色相，只保留纯粹的亮度和微弱的暖色偏移，更有质感，完美衬托红金文字
+  // Colors - 四色霓虹彩带 (Green, Yellow, Red, Blue)
+  // 保持与文字一致的配色体系，形成整体感
   const colors = useMemo(() => {
     const cols = new Float32Array(COUNT * 3);
     const c = new THREE.Color();
     const half = COUNT / 2;
     
+    // 预定义颜色盘
+    const palette = [
+        new THREE.Color('#32CD32'), // Green
+        new THREE.Color('#FFFF00'), // Yellow
+        new THREE.Color('#FF0033'), // Red
+        new THREE.Color('#1E90FF')  // Blue
+    ];
+
     for (let i = 0; i < COUNT; i++) {
-      if (Math.random() > 0.8) {
-         // 闪烁的高光点 (Sparkles)
-         c.setHSL(0, 0, 1.0); // Pure White
-      } else {
-         // 柔和的银色基底 (Soft Silver)
-         // 稍微带一点点暖色(hue=0.1)，避免死白，更有温度
-         c.setHSL(0.1, 0.1, 0.7 + Math.random() * 0.2); 
-      }
+      // 沿环进行颜色分段，或者随机混合
+      // 这里采用随机混合，打造碎钻彩灯效果，更加活泼
+      const colorIndex = Math.floor(Math.random() * 4);
+      c.copy(palette[colorIndex]);
+      
+      // 增加亮度随机变化，模拟星星闪烁
+      c.offsetHSL(0, 0, (Math.random() - 0.5) * 0.2);
       
       cols[i * 3] = c.r;
       cols[i * 3 + 1] = c.g;
