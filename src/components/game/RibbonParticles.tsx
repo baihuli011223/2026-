@@ -20,10 +20,10 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
   
   // Mobius Strip Parameters
   // 调整说明：
-  // 1. "离圣诞树远点" -> 增大半径 (Radius 5 -> 6.2)，避免与树叶重叠拥挤
-  // 2. "小一点" (视觉更精致) -> 大幅减小宽度 (Width 2.5 -> 1.0)，让星带看起来更纤细、不抢眼
-  // 3. 倾角微调，使其更扁平一点，符合审美
-  const RADIUS = 6.2; 
+  // 1. "包裹 2026" (文字分两行后，高度增加) -> 增大半径 (Radius 6.2 -> 6.5) 以确保不穿插
+  // 2. 宽度保持纤细 1.0
+  // 3. 倾角增大一点点 (30 -> 35)，以覆盖更高的文字范围
+  const RADIUS = 6.5; 
   const WIDTH = 1.0;
   
   // 1. Mobius Strip Logic
@@ -33,8 +33,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     
     // TILT ANGLES for the two rings (forming an X shape)
     // 两个环分别倾斜，形成 X 型交叉
-    const tilt1 = 30 * (Math.PI / 180); // 稍微减小倾角，更优雅
-    const tilt2 = -30 * (Math.PI / 180);
+    const tilt1 = 35 * (Math.PI / 180); 
+    const tilt2 = -35 * (Math.PI / 180);
 
     for (let i = 0; i < COUNT; i++) {
       // Determine which ring this particle belongs to
@@ -115,8 +115,8 @@ export const RibbonParticles: React.FC<RibbonParticlesProps> = ({ mode }) => {
     const baseSpeed = 0.15; 
     const R = RADIUS;
     
-    const tilt1 = 30 * (Math.PI / 180); 
-    const tilt2 = -30 * (Math.PI / 180);
+    const tilt1 = 35 * (Math.PI / 180); 
+    const tilt2 = -35 * (Math.PI / 180);
     const half = COUNT / 2;
 
     for (let i = 0; i < COUNT; i++) {

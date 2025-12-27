@@ -69,64 +69,78 @@ class AudioManager {
     this.effectSynth.volume.value = -8;
     this.effectSynth.connect(reverb); // Share reverb
 
-    // Auld Lang Syne (New Year Song)
-    // Should auld acquaintance be forgot...
-    // Melody adapted for 3/4 or 4/4 timing? 
-    // Usually 4/4. Let's stick to 4/4 at 100 BPM for a warm feeling.
+    // Auld Lang Syne (New Year Song) - Optimized
+    // 使用 Tone.Part 可能导致调度压力大，改用更简单的 scheduling 或优化 Part 参数
+    // 同时限制复音数和 Release 时间
+
+    // 1. 设置 LookAhead (牺牲一点延迟换取稳定)
+    Tone.context.lookAhead = 0.1;
+
+    // 2. 更柔和的钢琴音色，减少复音
+    this.bgmSynth = new Tone.PolySynth(Tone.Synth, {
+      maxPolyphony: 6, // 限制最大复音数，防止 CPU 过载
+      oscillator: { type: "triangle" }, 
+      envelope: { 
+        attack: 0.02, 
+        decay: 0.1,    
+        sustain: 0.3,  
+        release: 0.8   // 进一步缩短 Release
+      },
+      volume: -10 
+    }); 
     
-    // Key of F Major (for variety? or C Major? Let's use C Major for simplicity)
-    // C Major: C D E F G A B C
+    // Bass Synth - Monophonic is usually enough for bass
+    const bassSynth = new Tone.PolySynth(Tone.Synth, {
+      maxPolyphony: 4,
+      oscillator: { type: "sine" }, 
+      envelope: { 
+        attack: 0.05, 
+        decay: 0.2, 
+        sustain: 0.4, 
+        release: 1.0 
+      },
+      volume: -8
+    });
+
+    const lowPass = new Tone.Filter(800, "lowpass");
+    // 减少混响开销
+    const reverb = new Tone.Reverb({ decay: 2.0, preDelay: 0.01, wet: 0.15 });
+
+    this.bgmSynth.chain(lowPass, reverb, limiter);
+    bassSynth.chain(lowPass, reverb, limiter);
     
+    // Auld Lang Syne Melody - C Major
     const melody = [
-      // Pickup: "Should auld"
-      { time: "0:0", note: "C4", dur: "4n" }, // Should (upbeat? Actually standard notation starts on beat 4 usually. Let's simplify to start at 0)
-      
-      // Bar 1: "acquaintance be forgot" -> F4 E4 F4 A4
-      // Let's use simpler timing: 
-      // | C4 | F4 . . E4 | F4 . A4 . | G4 . F4 G4 | A4 . . . |
-      // Actually standard: 
-      // Upbeat G3 or C4. 
-      // Let's use standard version in F Major (Starts on C4)
-      // C4 | F4 . . E4 | F4 . A4 . | G4 . F4 G4 | A4 . 
-      
-      // Let's use G Major (Starts on D4) - same range as previous song
-      // Upbeat: D4
-      // G4 G4 G4 B4 | A4 G4 A4 B4 | G4 G4 B4 D5 | E5
-      
-      // Let's just write C Major sequence directly without complex Part scheduling to ensure it loops simply like before.
-      // But 'Part' is better for precise timing. I'll replace the melody array.
-      
       // Pickup
       { time: "0:0", note: "G4", dur: "4n" }, 
       
-      // Bar 1: C5 - - B4 | C5 - E5 -
+      // Bar 1
       { time: "0:1", note: "C5", dur: "2n." }, 
-      { time: "0:3:2", note: "B4", dur: "8n" }, // fast passing
+      { time: "0:3:2", note: "B4", dur: "8n" }, 
       { time: "0:3:3", note: "C5", dur: "8n" }, 
       
-      // Simplification for Tone.js scheduling
-      // Bar 1
+      // Bar 2
       { time: "1:0", note: "C5", dur: "2n" }, { time: "1:2", note: "E5", dur: "2n" },
       
-      // Bar 2: D5 - C5 D5 | E5 - D5 -
+      // Bar 3
       { time: "2:0", note: "D5", dur: "2n" }, { time: "2:2", note: "C5", dur: "4n" }, { time: "2:3", note: "D5", dur: "4n" },
       
-      // Bar 3: E5 - G5 - | E5 - - -
+      // Bar 4
       { time: "3:0", note: "E5", dur: "2n" }, { time: "3:2", note: "G5", dur: "2n" },
       
-      // Bar 4: A5 - - - | A5 - - -
+      // Bar 5
       { time: "4:0", note: "A5", dur: "1n" },
       
-      // Bar 5: A5 - G5 - | E5 - - -
+      // Bar 6
       { time: "5:0", note: "A5", dur: "2n" }, { time: "5:2", note: "G5", dur: "2n" },
       
-      // Bar 6: E5 - C5 - | D5 - - -
+      // Bar 7
       { time: "6:0", note: "E5", dur: "2n" }, { time: "6:2", note: "D5", dur: "4n" }, { time: "6:3", note: "C5", dur: "4n" },
       
-      // Bar 7: D5 - E5 - | C5 - A4 -
-      { time: "7:0", note: "D5", dur: "2n" }, { time: "7:2", note: "E5", dur: "2n" }, // Correction to fill
+      // Bar 8
+      { time: "7:0", note: "D5", dur: "2n" }, { time: "7:2", note: "E5", dur: "2n" },
       
-      // Bar 8: A4 - G4 - | C5 - - -
+      // Bar 9
       { time: "8:0", note: "C5", dur: "2n" }, { time: "8:2", note: "A4", dur: "2n" },
       { time: "9:0", note: "G4", dur: "2n" }, { time: "9:2", note: "B4", dur: "2n" },
       
@@ -134,15 +148,15 @@ class AudioManager {
       { time: "10:0", note: "C5", dur: "1n" }
     ];
 
-    // Simple Accompaniment (Chords) - Slow and Warm
+    // Simplified Bass Line (Root notes mainly)
     const bassLine = [
-      { time: "0:0", note: ["C3", "E3"] },
-      { time: "2:0", note: ["G3", "B3"] },
-      { time: "4:0", note: ["F3", "A3"] },
-      { time: "6:0", note: ["C3", "G3"] },
-      { time: "8:0", note: ["F3", "A3"] },
-      { time: "9:0", note: ["G3", "B3"] },
-      { time: "10:0", note: ["C3", "G3", "C4"] }
+      { time: "0:0", note: "C3" },
+      { time: "2:0", note: "G3" },
+      { time: "4:0", note: "F3" },
+      { time: "6:0", note: "C3" },
+      { time: "8:0", note: "F3" },
+      { time: "9:0", note: "G3" },
+      { time: "10:0", note: "C3" }
     ];
 
     const part = new Tone.Part((time, event) => {

@@ -27,19 +27,25 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
     const colorObj = new THREE.Color();
 
     if (ctx) {
-        const width = 400; // High res for better sampling
-        const height = 200;
+        // 使用正方形画布以容纳两行文字
+        const width = 400; 
+        const height = 400;
         canvas.width = width;
         canvas.height = height;
 
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, width, height);
         
-        ctx.font = 'bold 120px Arial';
+        // 调整字体大小和位置
+        ctx.font = 'bold 160px Arial'; // 更粗大的字体
         ctx.fillStyle = '#ffffff';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('2026', width / 2, height / 2);
+        
+        // 绘制两行文字：20 在上，26 在下
+        // 稍微紧凑一点的行距
+        ctx.fillText('20', width / 2, height / 2 - 75);
+        ctx.fillText('26', width / 2, height / 2 + 75);
 
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
@@ -58,12 +64,14 @@ export const TreeParticles: React.FC<TreeParticlesProps> = ({ mode }) => {
         for (let i = 0; i < COUNT; i++) {
             if (validPixels.length > 0) {
                 const pixel = validPixels[Math.floor(Math.random() * validPixels.length)];
-                // Scale factor to world size
-                const scale = 0.08; 
+                // 调整缩放比例，使整体不会过大
+                // 画布 400px，若 scale 0.04，则宽 16，高 16。有点大。
+                // 目标高度约 10-12。 scale = 0.035 左右
+                const scale = 0.035; 
                 
                 pos[i * 3] = pixel.x * scale + (Math.random() - 0.5) * 0.2;
                 pos[i * 3 + 1] = pixel.y * scale + (Math.random() - 0.5) * 0.2;
-                pos[i * 3 + 2] = (Math.random() - 0.5) * 2.0; // 3D depth thickness
+                pos[i * 3 + 2] = (Math.random() - 0.5) * 1.5; // 3D depth thickness
                 
                 // New Year Colors: Gold, Red, Silver
                 const rand = Math.random();
