@@ -9,7 +9,7 @@
     "lint": "tsgo -p tsconfig.check.json; npx biome lint; .rules/testBuild.sh"
   },
   "dependencies": {
-    "@mediapipe/tasks-vision": "0.10.22-rc.20250304",
+    "@mediapipe/tasks-vision": "^0.10.17",
     "@pmndrs/assets": "^1.7.0",
     "@react-spring/three": "^10.0.3",
     "@react-three/drei": "^10.7.7",
